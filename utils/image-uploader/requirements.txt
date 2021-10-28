@@ -1,0 +1,9 @@
+mysql-connector-python==8.0.*
+boto3==1.13.*
+botocore
+io
+os
+sys
+logging
+json
+

@@ -1,0 +1,13 @@
+tensorflow==2.6.0
+pandas==1.3.3
+seldon-core
+scikit-learn
+mysql-connector-python==8.0.*
+boto3==1.13.*
+io
+os
+sys
+logging
+numpy
+json
+
