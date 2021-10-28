@@ -7,6 +7,8 @@ from time import sleep
 import boto3
 import botocore
 
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
 ##############
 ## Vars init #
 ##############
