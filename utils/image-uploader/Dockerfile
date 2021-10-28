@@ -4,4 +4,4 @@ COPY . /app
 WORKDIR /app
 RUN pip install -r requirements.txt
 
-CMD exec python -u image-generator.py
+CMD exec python -u image-uploader.py

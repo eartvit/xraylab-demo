@@ -6,15 +6,15 @@ Note: the code uses OpenShift Container Storage compatible APIs since OpenShift 
 Required environment variables are: +
 *Object storage*
 
-* `access_key`: S3 storage access key
-* `secret_key`: S3 storage secret key
-* `service_point`: S3 storage endpoint, http(s)://myendpoint.address
+* `AWS_ACCESS_KEY_ID`: S3 storage access key
+* `AWS_SECRET_ACCESS_KEY`: S3 storage secret key
+* `SERVICE_POINT`: S3 storage endpoint, http(s)://myendpoint.address
 
 *Buckets*
 
-* `bucket_source`: name of the source bucket
-* `bucket_destination`: name of the destination bucket
+* `BUCKET_SOURCE`: name of the source bucket
+* `BUCKET_BASE_NAME`: name of the destination bucket
 
 *Delay between images*
 
-* `seconds_wait`: number of seconds to wait between each image. This can be less than 1 second, e.g. `0.2`
+* `SECONDS_WAIT`: number of seconds to wait between each image. This can be less than 1 second, e.g. `0.2`. If this is set to 0, the image uploads will stop.
