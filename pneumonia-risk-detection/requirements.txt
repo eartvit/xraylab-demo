@@ -4,4 +4,4 @@ seldon-core
 scikit-learn
 mysql-connector-python==8.0.*
 boto3==1.13.*
-numpy
+numpy==1.19.*
