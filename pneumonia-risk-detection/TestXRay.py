@@ -21,7 +21,8 @@ class TestXRay(object):
   def __init__(self):
     self.model_name = "TestXRay"
     self.predictor_name = "xray-demo"
-    self.predictor_version = "v1.0"    
+    self.predictor_version = "v1.0"        
+    logging.info(f"Service endpoint: {service_point}")
 
 
   def update_images_processed(self, image_name, model_version, pneumonia_risk):
@@ -68,11 +69,11 @@ class TestXRay(object):
 
 
     file_name = path_name.split('/')[-1]    
-    s3.download_file(Bucket=bucket_name, Key=path_name, Filename=file_name)
+    s3.download_file(Bucket=bucket_name, Key=path_name, Filename='/tmp/'+file_name)
     logging.info("File downloaded: %s.", file_name)
                                  
    
-    img = tf.keras.preprocessing.image.load_img(file_name, target_size=(150, 150))
+    img = tf.keras.preprocessing.image.load_img('/tmp/'+file_name, target_size=(150, 150))
     img_tensor = tf.keras.preprocessing.image.img_to_array(img) # (height, width, channels)
     img_tensor = np.expand_dims(img_tensor, axis=0)         	# (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
     img_tensor /= 255.                                      	# imshow expects values in the range [0, 1]
@@ -88,14 +89,14 @@ class TestXRay(object):
     if pneumonia_risk > 0.5:
       self.pneumonia = 1
 
-    s3.upload_file(file_name, bucket_name_processed, file_name)
+    s3.upload_file('/tmp/'+file_name, bucket_name_processed, file_name)
     logging.info("Uploaded processed file to s3 processed bucket.")
     
     success = self.update_images_processed(file_name, self.model_name, pneumonia_risk)
     if success:
       logging.info("Data processing results stored in DB.")
       
-    os.remove(file_name)
+    os.remove('/tmp/'+file_name)
     logging.info("Deleted local file. Prediction event completed!")
     
     return pred
