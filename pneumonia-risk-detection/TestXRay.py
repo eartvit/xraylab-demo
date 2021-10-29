@@ -15,7 +15,7 @@ db_user = os.environ['database_user']
 db_password = os.environ['database_password']
 db_host = os.environ['database_host']
 db_db = os.environ['database_db']
-
+service_point = os.environ['service_point']
 
 class TestXRay(object):
   def __init__(self):
@@ -56,23 +56,22 @@ class TestXRay(object):
     region_name = str(df.iloc[0]['region_name'])
     bucket_name = str(df.iloc[0]['bucket_name'])
     path_name = str(df.iloc[0]['file_path_name'])
-    
-    s3_resource = boto3.resource('s3',
-                             aws_access_key_id = aws_access_key_id,
-                             aws_secret_access_key = aws_secret_access_key,
-                             region_name = region_name,
-                             config=botocore.client.Config(signature_version = 's3'))
-                                 
-    ml_ds_bucket = s3_resource.Bucket(bucket_name)
+
     bucket_name_processed = bucket_name+'-processed'
-    ml_processed_bucket = s3_resource.Bucket(bucket_name_processed)
-    logging.info(f"Connected to source s3 bucket {bucket_name} and processed s3 bucket {bucket_name_processed}.")
+
+    s3 = boto3.client('s3',
+                endpoint_url = service_point,
+                aws_access_key_id = aws_access_key_id,
+                aws_secret_access_key = aws_secret_access_key,
+                region_name = region_name,
+                config=botocore.client.Config(signature_version = 's3'))                
+
 
     file_name = path_name.split('/')[-1]    
-    ml_ds_bucket.download_file(path_name, file_name)
+    s3.download_file(Bucket=bucket_name, Key=path_name, Filename=file_name)
     logging.info("File downloaded: %s.", file_name)
-
-    
+                                 
+   
     img = tf.keras.preprocessing.image.load_img(file_name, target_size=(150, 150))
     img_tensor = tf.keras.preprocessing.image.img_to_array(img) # (height, width, channels)
     img_tensor = np.expand_dims(img_tensor, axis=0)         	# (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
@@ -89,7 +88,7 @@ class TestXRay(object):
     if pneumonia_risk > 0.5:
       self.pneumonia = 1
 
-    ml_processed_bucket.upload_file(file_name, "processed/"+file_name)
+    s3.upload_file(file_name, bucket_name_processed, file_name)
     logging.info("Uploaded processed file to s3 processed bucket.")
     
     success = self.update_images_processed(file_name, self.model_name, pneumonia_risk)
