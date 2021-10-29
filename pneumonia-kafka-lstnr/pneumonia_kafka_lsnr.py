@@ -24,7 +24,7 @@ def extract_data(msg):
 
 @app.route("/", methods=["POST"])
 def kafka_listener():
-  content = request.json
+  content = request.data
   logging.info(f'Initial payload: {request}')
   logging.info(f'Extracting kafka message details from request: {content}')
   data = extract_data(content['Records'][0])
