@@ -92,7 +92,7 @@ class TestXRay(object):
     s3.upload_file('/tmp/'+file_name, bucket_name_processed, file_name)
     logging.info("Uploaded processed file to s3 processed bucket.")
     
-    success = self.update_images_processed(file_name, self.model_name, pneumonia_risk)
+    success = self.update_images_processed(file_name, self.model_name, pneumonia_risk.item())
     if success:
       logging.info("Data processing results stored in DB.")
       
