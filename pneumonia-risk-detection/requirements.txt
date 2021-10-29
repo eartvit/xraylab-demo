@@ -5,3 +5,4 @@ scikit-learn
 mysql-connector-python==8.0.*
 boto3==1.13.*
 numpy==1.19.*
+pillow==8.3.2
