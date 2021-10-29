@@ -16,9 +16,6 @@ db_password = os.environ['database_password']
 db_host = os.environ['database_host']
 db_db = os.environ['database_db']
 service_point = os.environ['service_point']
-aws_access_key_id = os.environ['aws_access_key_id']
-aws_secret_access_key = os.environ['aws_key']
-region_name = os.environ['region_name']
 
 class TestXRay(object):
   def __init__(self):
@@ -27,14 +24,6 @@ class TestXRay(object):
     self.predictor_version = "v1.0"        
     logging.info(f"Service endpoint: {service_point}")
 
-
-  def extract_data(self, msg):
-    logging.info('extract_data')
-    bucket_eventName=msg['eventName']
-    bucket_name=msg['s3']['bucket']['name']
-    bucket_object=msg['s3']['object']['key']
-    data = {'bucket_eventName':bucket_eventName, 'bucket_name':bucket_name, 'bucket_object':bucket_object}
-    return data
 
   def update_images_processed(self, image_name, model_version, pneumonia_risk):
     logging.info("Processing DB update...")
@@ -61,10 +50,7 @@ class TestXRay(object):
   def predict(self, X, features_names):
     # logging.info("Got request %s with features %s.", str(df.iloc[0].values.tolist()), json.dumps(features_names))
     logging.info(f"Got request {X} with features {features_names}")        
-    
-    data = self.extract_data(X)
     df = pd.DataFrame(data=X, columns=[features_names])
-    logging.info(f"Dataframe: {df}")
     
     
     aws_access_key_id = str(df.iloc[0]['aws_key_id'])
@@ -124,7 +110,7 @@ class TestXRay(object):
       {"type": "TIMER", "key": "timer", "value": 50.5},  # a timer which will add sum and count metrics - assumed millisecs
     ]
 
-'''
+
   def init_metadata(self):
     meta = {
       "name": "xray-demo-tf",
@@ -140,5 +126,4 @@ class TestXRay(object):
       "custom": {"author": "eartvit", "extra": "xray-demo"},
     }
     return meta
-'''
-
+  
