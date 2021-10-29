@@ -33,7 +33,8 @@ class TestXRay(object):
                                     host=db_host,
                                     database=db_db)
       cursor = cnx.cursor()
-      query = 'INSERT INTO images_processed(time,name,model,pneumonia_risk) VALUES (SELECT CURRENT_TIMESTAMP(), "' + image_name + '","' + model_version + '","' + str(pneumonia_risk) + '");'
+      query = 'INSERT INTO images_processed(time,name,model,pneumonia_risk) SELECT CURRENT_TIMESTAMP(), "' + image_name + '","' + model_version + '","' + str(pneumonia_risk) + '";'
+      logging.info(f"Trying query:{query}")
       cursor.execute(query)
       cnx.commit()
       cursor.close()
