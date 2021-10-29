@@ -48,11 +48,9 @@ class TestXRay(object):
         
         
   def predict(self, X, features_names):
-    # logging.info("Got request %s with features %s.", str(df.iloc[0].values.tolist()), json.dumps(features_names))
     logging.info(f"Got request {X} with features {features_names}")        
     df = pd.DataFrame(data=X, columns=[features_names])
-    
-    
+        
     aws_access_key_id = str(df.iloc[0]['aws_key_id'])
     aws_secret_access_key = str(df.iloc[0]['aws_key'])
     region_name = str(df.iloc[0]['region_name'])
@@ -70,35 +68,39 @@ class TestXRay(object):
 
 
     file_name = path_name.split('/')[-1]    
-    s3.download_file(Bucket=bucket_name, Key=path_name, Filename='/tmp/'+file_name)
-    logging.info("File downloaded: %s.", file_name)
-                                 
-   
-    img = tf.keras.preprocessing.image.load_img('/tmp/'+file_name, target_size=(150, 150))
-    img_tensor = tf.keras.preprocessing.image.img_to_array(img) # (height, width, channels)
-    img_tensor = np.expand_dims(img_tensor, axis=0)         	# (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
-    img_tensor /= 255.                                      	# imshow expects values in the range [0, 1]
-    logging.info("Image to tensor completed.")
-    
-    model = tf.keras.models.load_model('./pneumonia_model.h5')
-    
-    pred = model.predict(img_tensor)
-    pneumonia_risk = pred[0][0]
-    logging.info(f"Pneumonia risk prediction of: {pneumonia_risk}.")    
-        
+    pred = np.array([-1])
     self.pneumonia = 0
-    if pneumonia_risk > 0.5:
-      self.pneumonia = 1
-
-    s3.upload_file('/tmp/'+file_name, bucket_name_processed, file_name)
-    logging.info("Uploaded processed file to s3 processed bucket.")
     
-    success = self.update_images_processed(file_name, self.model_name, pneumonia_risk.item())
-    if success:
-      logging.info("Data processing results stored in DB.")
+    try:
+      s3.download_file(Bucket=bucket_name, Key=path_name, Filename='/tmp/'+file_name)
+      logging.info("File downloaded: %s.", file_name)
+                                    
+      img = tf.keras.preprocessing.image.load_img('/tmp/'+file_name, target_size=(150, 150))
+      img_tensor = tf.keras.preprocessing.image.img_to_array(img) # (height, width, channels)
+      img_tensor = np.expand_dims(img_tensor, axis=0)         	# (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
+      img_tensor /= 255.                                      	# imshow expects values in the range [0, 1]
+      logging.info("Image to tensor completed.")
+    
+      model = tf.keras.models.load_model('./pneumonia_model.h5')
+    
+      pred = model.predict(img_tensor)
+      pneumonia_risk = pred[0][0]
+      logging.info(f"Pneumonia risk prediction of: {pneumonia_risk}.")    
+              
+      if pneumonia_risk > 0.5:
+        self.pneumonia = 1
+
+      s3.upload_file('/tmp/'+file_name, bucket_name_processed, file_name)
+      logging.info("Uploaded processed file to s3 processed bucket.")
+    
+      success = self.update_images_processed(file_name, self.model_name, pneumonia_risk.item())
+      if success:
+        logging.info("Data processing results stored in DB.")
       
-    os.remove('/tmp/'+file_name)
-    logging.info("Deleted local file. Prediction event completed!")
+      os.remove('/tmp/'+file_name)
+      logging.info("Deleted local file. Prediction event completed!")
+    except Exception as e:
+      logging.info(f"Got an exception while processing: {e}")
     
     return pred
 
