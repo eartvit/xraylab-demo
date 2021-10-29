@@ -27,7 +27,7 @@ def kafka_listener():
   content = request.data
   content = content.decode('utf-8')
   #logging.info(f'Initial payload: {request}')
-  #logging.info(f'Extracting kafka message details from request: {content}')
+  logging.info(f'Extracting kafka message details from request: {content}')
   data = extract_data(content['Records'][0])
   logging.info(f"Extracted data for prediction service: {data}")
 
