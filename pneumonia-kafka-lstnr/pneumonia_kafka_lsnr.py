@@ -3,6 +3,7 @@ import requests
 import logging
 import os
 import sys
+import json
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -27,8 +28,9 @@ def kafka_listener():
   content = request.data
   content = content.decode('utf-8')
   #logging.info(f'Initial payload: {request}')
-  logging.info(f'Extracting kafka message details from request: {content}')
-  data = extract_data(content['Records'][0])
+  content_data = json.loads(content)
+  logging.info(f'Extracting kafka message details from request: {content_data}')
+  data = extract_data(content_data['Records'][0])
   logging.info(f"Extracted data for prediction service: {data}")
 
   results_OK = True
