@@ -1,0 +1,30 @@
+{% extends "xraylab/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div>
+        <center>
+            <h1>Test Details Page</h1>
+        </center>
+        </p>
+        <h4 class="content-section">Subject's name: {{ xray_data.name }} </h4>
+        <h4 class="content-section">Pneumonia risk evaluation: {{ xray_data.risk }}</h4>
+        <div class="content-section" height="300px" width="300px" max-width="300px" max-height="300px">
+            <center>
+                <img  class="img-fluid" src="{{ xray_data.image_name.url }}">
+            </center>
+        </div>
+
+    </div>
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <!-- <legend class="border-bottom mb-4">X-Ray Test Details</legend>-->
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Update Notes</button>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

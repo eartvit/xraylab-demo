@@ -1,0 +1,48 @@
+{% extends "xraylab/base.html" %}
+{% block content %}
+    <center xmlns="http://www.w3.org/1999/html">
+        <h1>X-Ray Lab Homepage</h1>
+    </center>
+    </p>
+    <div class="container">
+        The results for the x-ray scans are provided in the below table:
+    </div>
+    </p>
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <td colspan="6" align="center"><h4>X-Ray Results</h4></td>
+            </tr>
+            <tr>
+                <td align="center" valign="center">Date</td>
+                <td align="center" valign="center">Name</td>
+                <td align="center" valign="center">Risk</td>
+                <td align="center" valign="center">Has Notes</td>
+                <td align="center" valign="center" >Doctor's Name</td>
+                <td align="center" valign="center">See details</td>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in xray_tests %}
+            <tr>
+                <td align="center" valign="center">{{ item.test_date }}</td>
+                <td align="center" valign="center">{{ item.name }}</td>
+                <td align="center" valign="center">{{ item.risk }}</td>
+                {% if item.notes == None or item.notes == '' %}
+                    <td align="center" valign="center">No</td>
+                {% else %}
+                    <td align="center" valign="center">Yes</td>
+                {% endif %}
+                {% if item.author == None %}
+                    <td align="center" valign="center"></td>
+                {% else %}
+                    <td align="center" valign="center">{{ item.author }}</td>
+                {% endif %}
+                <td align="center" valign="center">
+                    <button name="details_button" class="btn btn-outline-dark" type="submit" onclick="location.href='{% url 'xraylab-details-update' item.pk %}'">Details</button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

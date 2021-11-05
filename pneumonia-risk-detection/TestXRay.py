@@ -33,7 +33,8 @@ class TestXRay(object):
                                     host=db_host,
                                     database=db_db)
       cursor = cnx.cursor()
-      query = 'INSERT INTO images_processed(time,name,model,pneumonia_risk) SELECT CURRENT_TIMESTAMP(), "' + image_name + '","' + model_version + '","' + str(pneumonia_risk) + '";'
+      subject_name = image_name[image_name.index('_')+1:image_name.index('_',image_name.index('_')+1)] # get the string between the first two occurences of '_'
+      query = 'INSERT INTO xraylab_xraydata(test_date, name, risk, image_name, model_name) SELECT CURRENT_TIMESTAMP(), "' + subject_name + '","' + str(pneumonia_risk) + '","' + image_name + '","' + model_version + '";'
       logging.info(f"Trying query:{query}")
       cursor.execute(query)
       cnx.commit()
