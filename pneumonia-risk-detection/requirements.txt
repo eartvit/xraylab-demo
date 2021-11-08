@@ -1,6 +1,6 @@
 tensorflow==2.6.0
 pandas==1.3.3
-seldon-core
+seldon-core==1.11.1
 scikit-learn
 mysql-connector-python==8.0.*
 boto3==1.13.*
