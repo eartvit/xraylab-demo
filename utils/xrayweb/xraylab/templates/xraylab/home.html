@@ -1,4 +1,5 @@
 {% extends "xraylab/base.html" %}
+{% load mathfilters %}
 {% block content %}
     <center xmlns="http://www.w3.org/1999/html">
         <h1>X-Ray Lab Homepage</h1>
@@ -16,7 +17,7 @@
             <tr>
                 <td align="center" valign="center">Date</td>
                 <td align="center" valign="center">Name</td>
-                <td align="center" valign="center">Risk</td>
+                <td align="center" valign="center">Risk (%)</td>
                 <td align="center" valign="center">Has Notes</td>
                 <td align="center" valign="center" >Doctor's Name</td>
                 <td align="center" valign="center">See details</td>
@@ -27,7 +28,7 @@
             <tr>
                 <td align="center" valign="center">{{ item.test_date }}</td>
                 <td align="center" valign="center">{{ item.name }}</td>
-                <td align="center" valign="center">{{ item.risk }}</td>
+                <td align="center" valign="center">{{ item.risk | mul:100 | floatformat:4 }}</td>
                 {% if item.notes == None or item.notes == '' %}
                     <td align="center" valign="center">No</td>
                 {% else %}
