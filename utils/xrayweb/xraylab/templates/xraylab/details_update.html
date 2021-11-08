@@ -7,7 +7,7 @@
         </center>
         </p>
         <h4 class="content-section">Subject's name: {{ xray_data.name }} </h4>
-        <h4 class="content-section">Pneumonia risk evaluation: {{ xray_data.risk|floatformat:"-4" }}</h4>
+        <h4 class="content-section">Pneumonia risk evaluation: {{ xray_data.risk|stringformat:".4f" }}</h4>
         <div class="content-section" height="300px" width="300px" max-width="300px" max-height="300px">
             <center>
                 <img  class="img-fluid" src="{{ xray_data.image_name.url }}">
