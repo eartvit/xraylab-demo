@@ -10,6 +10,7 @@ import logging
 import json
 import mysql.connector
 
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 db_user = os.environ['database_user']
 db_password = os.environ['database_password']
