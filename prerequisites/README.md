@@ -12,4 +12,11 @@ Install the following operators from Operator hub. Please be patient and wait fo
 
 ***Note!*** The scenario assumes the use of AWS S3-compatible buckets provided by OpenShift Container Storage. If you want to use regular AWS S3 buckets or other type of storage, please adjust the code of the applications/utilities that require access to storage.
 
+### Configuration
 
+#### Setup KNative Serverless and Eventing
+Serverless technology may be used in the final setup of a solution as an alternative to the traditional kubernetes deployments. In this scenario, the components are deployed as regular deployment configurations.
+K-Native Eventing is used however in the scenario in order to setup a listener for kafka events (created upon new x-ray image upload to a source bucket). 
+Using this approach, the kafka consumer is decoupled and abstracted from the business logic of the receiving application.
+
+To setup Serverless, select in the Administrator view of the OpenShift web-console the knative-serving project. Go to Installed Operators and click on Red Hat OpenShift Serverless.
