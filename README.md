@@ -46,3 +46,9 @@ Now the environment is prepared to kick-off the work of the data scientists. Thi
 You should see after the completion of the commands that a new directory `notebooks` has been created within your jupyter hub instance:
 ![odh-notebooks](odh-notebooks.png)
 
+Inside the notebooks folder there are three Jupyter notebooks:
+* One example of [pneumonia risk detection ML model](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/x-ray-predict-pneumonia-tf-training.ipynb) creation notebook. Here you can see the steps how the sample model was created.
+* One [S3 buckets creation](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/s3-buckets.ipynb) notebook. Please use this notebook to create the necessary buckets for simulation of the "production" scenario where the deployed ML model is integrated with the other applications described in the `Showcase overview` section of this readme document (you can run this notebook at this time).
+* One [SNS notification](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/create_notifications.ipynb) notebook used to setup the SNS service that shall trigger a new Kafka message every time an x-ray image is uploaded in the source bucket (also used in the "production" scenario). Please do not run this notebook yet as it should be run after the Kafka instance has been created (in the next section).
+
+Naturally, as soon as the datascientist has an ML model ready, it should be deployed to production fast and easy. One way to do this is by using [Seldon](https://www.seldon.io/).
