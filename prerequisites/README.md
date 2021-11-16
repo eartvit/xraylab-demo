@@ -44,6 +44,24 @@ oc apply -f 01_cephobjectstore.yaml
 ```
 Wait for the Object Store to be created; this is done when a pod with "rgw" in its name appears with running state within the openshift-storage project.
 
+***Note!*** If the RGW service was already deployed (when you're not on AWS), it cannot initially be reached from the outside world. Since in the real world the images may be hosted in a different cluster, and as the web-app requires access to these images to display them, an external Route needs to be created for this service (recommended to be a secure route). There are several ways to do this (OpenShift web console or the CLI). Note the last section of the `01_cephobjectstore.yaml` file contains a route definition that may be used as an example in your environment.
+
+##### Deploy Ceph Toolbox
+The Ceph toolbox container image contains admin tools that will be used in the next step to create users.
+```shellscript
+oc patch OCSInitialization ocsinit -n openshift-storage --type json --patch  '[{ "op": "replace", "path": "/spec/enableCephTools", "value": true }]'
+```
+##### Create a RadosGateway user
+Wait for the toolbox to be running before creating a user. The user is created by issueing the following command using the OpenShift CLI:
+```shellscript
+oc exec -n openshift-storage `oc get pods -n openshift-storage | grep rook-ceph-tools | grep Running | awk '{print $1}'` -- radosgw-admin user create --uid="xraylab" --display-name="Xray Lab"
+```
+From the output of this command, note and keep the following user informations:
+
+* *access_key*
+* *secret_key*
+
+
 #### Setup Open Data Hub 
 Open Data Hub must run in its own namespace. Create a new project called `odh`, select it as active project and then go to Installed Operators->Open Data Hub Operator to create an intance:
 ![odh1](odh-1.png)
