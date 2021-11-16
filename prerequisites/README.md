@@ -20,18 +20,18 @@ K-Native Eventing is used in the scenario in order to setup a listener for kafka
 Using this approach, the kafka consumer is decoupled and abstracted from the business logic of the receiving application.
 
 To setup Serverless, select in the Administrator view of the OpenShift web-console the `knative-serving` project. Go to Installed Operators and click on Red Hat OpenShift Serverless.
-![KNative-Serving-Overview](knative-serving-1.png)
+![KNative-Serving-Overview](docs/knative-serving-1.png)
 Create a Serverless instance using the default values by clicking the create instance link of the KNative Serving tile, and then on the clicking on the Create button in the next screen.
-![KNative-Serving Default Instance](knative-serving-1.png)
+![KNative-Serving Default Instance](docs/knative-serving-1.png)
 
 Please wait for the instance to be fully created (depending on your environment it may take a few minutes). Once this process is completed the "Serverless" option should appear populated in the OpenShift web console menu. Note the earlier images already display this information since the screenshot was taken after creation of the services.
 
 Next, to setup eventing, switch to project name `knative-eventing`, then Operators->Installed Operators->Serverless:
-![KNative-Eventing-Overviw](knative-eventing-1.png)
+![KNative-Eventing-Overviw](docs/knative-eventing-1.png)
 Create a KNative Eventing instance using the default values by clicking on the create instance link of the KNative Eventing tile and then on the Create button in the next screen:
-![KNative-Eventing Default Instance](knative-eventing-1_1.png)
+![KNative-Eventing Default Instance](docs/knative-eventing-1_1.png)
 Wait for the instance to be fully created! (depending on your environment it may take a few minutes). Once this step is completed then create a Knative Kafka instance. During this step, ensure you enable the Channel and Source for the instance (as depicted in the next figure):
-![KNative Kafka Create Instance](knative-eventing-2.png)
+![KNative Kafka Create Instance](docs/knative-eventing-2.png)
 Allow the instance to be fully created before you proceed to the next step (depending on your environment it may take a few minutes).
 
 #### Setup Red Hat Container Storage
@@ -64,9 +64,9 @@ From the output of this command, note and keep the following user informations:
 
 #### Setup Open Data Hub 
 Open Data Hub must run in its own namespace. Create a new project called `odh`, select it as active project and then go to Installed Operators->Open Data Hub Operator to create an intance:
-![odh1](odh-1.png)
+![odh1](docs/odh-1.png)
 As we will use only a few of the ODH components in this showcase, switch to the YAML view and ensure only the following applications are listed under the `spec` tag: odh-common, grafana-cluster, grafana-instance, prometheus-operator, jupyterhub, notebook-images, odh-dashboard. (Please ensure the repos tag is also kept under the spec).
-![odh2](odh-2.png)
+![odh2](docs/odh-2.png)
 Alternatively, you can create the ODH instance with the help of the oc CLI by applying the [02_opendatahub.yaml](02_opendatahub.yaml) file:
 ```shellscript
 oc apply -f 02_opendatahub.yaml
