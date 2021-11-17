@@ -98,9 +98,20 @@ Update the service name, connection user name, password, root password and datab
 
 Wait for the application to be deployed.
 
-Next, we can create our Kafka instance.
-...
+Next, we can create our Kafka instance. This also shall be deployed into the `xraylab` project. Head over to Installed Operators and click on the Red Hat Integration - AMQ Streams link: the overview page should appear:
+![kafka-overview](docs/kafka-1.png)
+From there you can create an instance by clicking on the create instance tile. You can keep all the defaults, although you may want to rename the cluster name from the default 'my-cluster' to something more meaningful (i.e., xray-images or xraylab).
+![kafka-instance-create](docs/kafka-2.png)
+Please be patient and wait for all the pods to be created (should be 7 in total: 1 entity operator, 3 zookeeper and 3 kafka broker pods). After this step, create a topic for the message notifications from the SNS service (fired whenever a new image is uploaded in the source bucket).
+For the topic creation I recommend to switch over to YAML view as it will be easier to change the cluster label (if you did not keep the 'my-cluster' default). Also, note that in this case we need only 1 replica for the topic (for production grade setup it's recommended to have more):
+![kafka-topic-create](docs/kafka-3.png)
 
+Optionally, you can deploy kafdrop in your project to be able to monitor and perform some administrative operations on the Kafka topics. First, edit the `03_kafdrop.yaml` file and update the name of the kafka broker with the one you provided when you created the Kafka instance (please remember the default name was my-cluster). Please note the value for the Kafka broker connect is the name of the Kafka boostrap service followed by the port number (i.e., ':9092') therefore pay attention to update only the part referring to the broker name while keeping the remainder of the service name (i.e., update only the highlighted portion of the name from the next picture):
+![kafdrop](docs/kafka-4.png)
+Then, you can apply the configuration to OpenShift using:
+```shellscript
+oc apply -f 03_kafdrop.yaml
+```
 
 Let us turn now attention towards the application deployments and let's start with our ML model deployment.
 In the Developer view of OpenShift, select the project where you want the application to be deployed (let's assume everything goes to the `xraylab` namespace). Then select add new application and then under the Git Repository section select the `From Dockerfile` tile (given that in our case we have a dockerfile definition for each of the application we are going to deploy).
