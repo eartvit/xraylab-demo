@@ -34,8 +34,10 @@ Data scientists typically use Jupyter Notebooks in order to perform their work. 
 To get started, head to your OpenShift web console and select the project where the Open Data Hub instance has been deployed (see the [prerequisites](https://github.com/eartvit/xraylab-demo/tree/main/prerequisites)). Then go to Networking->Routes and click on the ODH dashboard. From there you have access to Jupyter Hub/Lab (depending on the version of OpenShift and ODH you used either hub or lab are available). 
 ![odh-routes](docs/odh-routes.png)
 ![odh-dashboard](docs/odh-dashboard.png)
-The first time you instantiate Jupyter it will ask to accept/allow some permissions to be set, then you can create a notebook server (select medium size for this showcase).
-
+The first time you instantiate Jupyter it will ask to accept/allow some permissions to be set: 
+![jupyther-authorize](docs/jupyter-authorize-1.png)
+Then you can create a notebook server (select medium size for this showcase).
+![jupyter-medium-ds-image](docs/jupyter-medium-ds-image-1.png)
 Now the environment is prepared to kick-off the work of the data scientists. This showcase stores a sample model training notebook and some additional notebooks required to setup the S3 buckets and the SNS notification service to trigger kafka messages whenever a new image is uploaded to an input bucket. To obtain these notebooks from the current repository, create a new notebook in the Jupyter instance and enter the following commands in a code cell and execute them:
 ```
 !pip install git+git://github.com/HR/github-clone
@@ -62,8 +64,45 @@ Seldon core comes a packaged web-server exposing endpoints for accessing the pre
 
 Note that the [TestXray.py](https://github.com/eartvit/xraylab-demo/blob/main/pneumonia-risk-detection/TestXRay.py) does not contain any web server specific code since that is handled behind the scenes directly by Seldon. Therefore the datascientist can focus only on what the model requires as input in order to create a prediction.
 
-Now that we have a model trained and a template service created it's time to deploy them. OpenShift has a way of creating container images directly from source code called Source-to-Image (S2I). We shall use this functionality in our showcase to deploy all the application.
-First, let's start with our ML model deployment.
+Now that we have a model trained and a template service created it's time to deploy them. OpenShift has a way of creating container images directly from source code called Source-to-Image (S2I). We shall use this functionality in our showcase to deploy all the applications of the showcase in the next section, the (fullstack) application developer user stories. 
+
+### The (Fullstack) Application Developer user stories details
+
+A developer wants to have quick access to resources including supporting applications required to be integrated with a custom developed application so that the developer can focus most if the time on writing code that fulfills the business logic of a system. OpenShift offers fast provisioning of certain resources for development purposes of databases (using templates) as well as of Kafka instances. 
+
+Another important aspect to keep track of is having configurations to different entities external to an application, and have them shared accross multiple applications. Openshift uses Secrets and ConfigMaps to store secret keys and configuration values shared among applications.
+In our showcase we reuse among different applications the following resources:
+* the AWS keys from the Rados GW setup (created in the [prerequisites](https://github.com/eartvit/xraylab-demo/tree/main/prerequisites) section).
+* the Rados GW endpoint route to make accessible the images
+* the database where the pneumonia-risk-service will write predictions and from where the xray webapp shall read results.
+
+Let's create them by selecting the xraylab project as active in Administrator view and then navigate to Workloads->Secrets. Using the Create command (on the right side) select the key/value secret option
+![create-secret](docs/create-secrets-1.png) 
+Below is provided a view for the database secrets. Please create another secret for the AWS keys (using the values you obtained in the prerequisites section)
+![create-secret-db](docs/create-secrets-2.png)
+
+Next, let's create a configuration map for the S3 buckets endopoint URL followin a similar approach but this time selecting Workloads->ConfigMaps. Note that in the case of ConfigMaps you will need to work with yaml content. Eventually your file should look similar to the one below:
+![config-maps](docs/config-maps-1.png)
+
+Next, as per our showcase description we need a few other resources before we can continue to application deployment:
+* a Kafka instance with a topic where to write the information about the messages dropped in the S3 bucket
+* a database where to store the results
+* a Kafka source which shall act as a kafka topic listener and consume messages by directing them to an application - this resource we shall create it after we deploy the listener application.
+
+With Red Hat Openshift provisioning a database is fast and easy. Just switch over to developer view and click add and by default the topology view appears with all the deployed applications and services in a selected user namespace. Ensure the selected project is `xraylab` and then click on "Add" from the left menu:
+![developer-add-1](docs/developer-add-1.png)
+The available DB templates shall appear. For our showcase we shall use MariaDB. Select the template and click on the instantiate button:
+![developer-add-db-1](docs/developer-add-db-1.png)
+Update the service name, connection user name, password, root password and database name to the values you created in the db-secret Secret file.
+![developer-add-db-2](docs/developer-add-db-2.png)
+
+Wait for the application to be deployed.
+
+Next, we can create our Kafka instance.
+...
+
+
+Let us turn now attention towards the application deployments and let's start with our ML model deployment.
 In the Developer view of OpenShift, select the project where you want the application to be deployed (let's assume everything goes to the `xraylab` namespace). Then select add new application and then under the Git Repository section select the `From Dockerfile` tile (given that in our case we have a dockerfile definition for each of the application we are going to deploy).
 ![developer-add-1](docs/developer-add-1.png)
 ***Note!*** Source-to-Image (S2I) works also without a Dockerfile, directly with source code and there are several base containers supporting various languages/frameworks. In this showcase the Dockerfile one is presented as it is a very straightforward one considering the applications we want to deploy.
