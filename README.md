@@ -179,10 +179,10 @@ Then, to create the Kafka read event, we shall use the knative-eventing function
 Here, create an event source and select Kafka event source:
 ![kafka-read-event-2](docs/kafka-read-event-2.png)
 You can then use the form or the YAML based view to fill out the required information:
-* boostrap server: <kafka-broker-name>-kafka-boostrap.<namespace>.svc.cluster.local:9092, which is the kafka boostrap service name and port
+* boostrap server: `<kafka-broker-name>-kafka-boostrap.<namespace>.svc.cluster.local:9092`, which is the kafka boostrap service name and port
 * topics, i.e. xray-images
 * consumer-group which should be the label of the listener service, i.e. pneumonia-kafka-lstnr
-* sink information which is the URI endpoint of the receiving service (the pneumonia-kafka-lstnr) using the following pattern: http://<listener-svc-name>.<namespace>.svc.cluster.local:8080/ (e.g., http://pneumonia-kafka-lstnr.xraylab.svc.cluster.local:8080/). Note this is the internal name of the service (not an external route), and should NOT be secure http.
+* sink information which is the URI endpoint of the receiving service (the pneumonia-kafka-lstnr) using the following pattern: `http://<listener-svc-name>.<namespace>.svc.cluster.local:8080/` (e.g., http://pneumonia-kafka-lstnr.xraylab.svc.cluster.local:8080/). Note this is the internal name of the service (not an external route), and should NOT be secure http.
 * application information which should be the listener application (the groupping will be visible on the Topology view): pneumonia-kafka-lstnr
 * name of the source (e.g., kafka-source-xraylab)
 ![kafka-read-event-3](docs/kafka-read-event-3.png)
