@@ -199,6 +199,43 @@ Depending on the value you set for SECONDS_WAIT, you should be seeing after that
 ### The Operations Engineer user stories details
 Now it's time to monitor the service. We shall use for this purpose the Grafana and Prometheus deployments from the Open Data Hub's instance (the `odh` project).
 Since the resources we want to monitor are in a different namespace, first we must setup the right ACL for the `odh` namespace to access resources from the `xraylab` namespace. To achieve that we must add a role binding to the `odh` project.
+In the Administrator view open User Management->Role Bindings and click on Create binding
+![odh-role-binding-1](docs/odh-role-binding-1.png)
+On the following screen select a cluster wide role binding. Give a name to the binding, e.g. xraylab-mon-prometheus, select 'view' for the role, and the subject should be ServiceAccount with the namespace where the Prometheus is deployed (odh in our case) and for the subject type in `prometheus-k8s`
+![odh-role-binding-2](docs/odh-role-binding-2.png)
+
+Next, we can create a new service monitor for the Prometheus instance from the ODH project (the project where the Open Data Hub instance was created in the [prerequisites](https://github.com/eartvit/xraylab-demo/tree/main/prerequisites) section).
+Select Installed Operators and then Prometheus Operator
+![odh-prom-1](docs/odh-prom-1.png)
+The view opens up with the Details tab, so switch over to the Service Monitor tab and then click on create ServiceMonitor button:
+![odh-prom-2](docs/odh-prom-2.png)
+While you can fill in all the details using the form view, it may be easier to do it by editing directly the YAML file instead.
+The contents of the file should be as depicted by the next picture. 
+![odh-prom-3](docs/odh-prom-3.png)
+It is extremely important the service monitor has as label `team=opendatahub`, otherwise the ODH Prometheus instance will not add the target to its list of monitored targets. The target is by the selector which shoould be the `pneumonia-risk-detection` service where we defined earlier the `6000-metrics` port as the port where the metrics endpoint shall be exposed.
+For convenience, the same is found in the [04_odh_role_binding.yaml](04_odh_role_binding.yaml) file in this repository, therefore, the role binding can be applied directly from the CLI:
+```shellscript
+oc project odh
+oc apply -f 04_odh_role_binding.yaml
+```
+Next, we can create the Grafan dashboard for this project. This can be done directly from OpenShift or through the Grafana UI. We shall use the Grafana instance in this case. The default (provisioned) credentials for Grafana are root/secret. They can be viewed in OpenShift on the Workloads->Secrets page under grafana-amin-credentials secrets:
+![grafana-1](docs/grafana-1.png)
+The Grafana dashboard may be accessed via the Networking->Routes section or from the ODH Dashboard. By default you are not logged in and in view mode, so please login first to create the new datasources and then the dashboard.
+Now we can create a dashboard for our pneumonia-risk-detection service.
+On a new dashboard, add a new panel of type graph and fill in the following for the metrics query:
+```
+rate(requests_total{service="pneumonia-risk-detection"}[1m])*60
+```
+Legend should be "requests_total" and min step is 1 (one).
+Add two more panels under the current one. The panel type should be stat (in both cases). On the Display side the calculation should be set to Last and Fields pneumonia total and requests total respectively.
+Metrics should also be set to `pneumonia_total{service="pneumonia-risk-detection"}` and `requests_total{service="pneumonia-risk-detection"}` respectively. Color mode should be 'value', Graph mode set to 'none' and Alignment set to center. You can also change the text color on the Field tab by selecting the Base color (e.g. red for pneumonia total and green for requests total).
+![grafana-2](docs/grafana-2.png)
+Obviously the values will update depending when and for how long you ran the service.
+
+That's it! You now have went through the deployment of an intelligent application on RedHat Openshift!
+
+
+
 
 
 

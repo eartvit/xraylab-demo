@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: pneumonia-risk-detection
+    team: opendatahub
+  name: pneumonia-risk-detection-mon
+  namespace: odh
+spec:
+  endpoints:
+    - interval: 5s
+      port: 6000-metrics
+  namespaceSelector:
+    matchNames:
+      - xraylab
+  selector:
+    matchLabels:
+      app: pneumonia-risk-detection
