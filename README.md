@@ -232,7 +232,7 @@ Metrics should also be set to `pneumonia_total{service="pneumonia-risk-detection
 ![grafana-2](docs/grafana-2.png)
 Obviously the values will update depending when and for how long you ran the service.
 
-That's it! You now have went through the deployment of an intelligent application on RedHat Openshift!
+That's it! You now have gone through the deployment of an intelligent application on RedHat Openshift!
 
 
 
