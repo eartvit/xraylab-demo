@@ -55,8 +55,10 @@ Inside the notebooks folder there are three Jupyter notebooks:
 
 ***Note!*** In case you wish to change and retrain the ML model then first you will need to upload the train-test-validation set to the train-test-validation bucket (see [S3 buckets creation](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/s3-buckets.ipynb) for details on how to create the bucket). To upload the images you can do that easily by using the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) as follows:
 ```shellscript
-aws s3 sync --profile=<xraylab_profile_name> --endpoint=<external Rados GW endpoint>  . s3://<train-test-validation-bucket>/
+aws s3 sync --profile=<xraylab_profile_name> --endpoint=<external Rados GW endpoint>  ./<folder> s3://<train-test-validation-bucket>/
 ```
+***Note!*** The above operation should be performed once per dataset: `test`, `train`, and `val` respectively. In other words, the S3 bucket should have in its root at the end of the synchronization three folders: `train`, `test` and `val`. Each of these three folders must contain two subfolders called `NORMAL` and `PNEUMONIA`. These structure is recommended given that the `ImageDataGenerator` from the `tensorflow.keras.preprocessing.image` library is used to prepare the train-test-validation datasets for the model training process. If you do not follow this convention, you must then adapt the model training notebook to meet your setup.
+
 Please note the above command assumes you created a AWS CLI profile using the AWS KEY_ID and SECRET_KEY of the Rados user as explained in the [prerequisites](https://github.com/eartvit/xraylab-demo/tree/main/prerequisites) and you created the train-test-validation bucket as described in the [S3 buckets creation](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/s3-buckets.ipynb) notebook.
 
 Coming back to our datascientist user stories, naturally, as soon as the datascientist has an ML model ready, it wants it deployed to production fast and easy. One way to do this is by using [Seldon](https://www.seldon.io/).
@@ -108,6 +110,7 @@ For the topic creation I recommend to switch over to YAML view as it will be eas
 
 Optionally, you can deploy kafdrop in your project to be able to monitor and perform some administrative operations on the Kafka topics. First, edit the `03_kafdrop.yaml` file and update the name of the kafka broker with the one you provided when you created the Kafka instance (please remember the default name was my-cluster). Please note the value for the Kafka broker connect is the name of the Kafka boostrap service followed by the port number (i.e., ':9092') therefore pay attention to update only the part referring to the broker name while keeping the remainder of the service name (i.e., update only the highlighted portion of the name from the next picture):
 ![kafdrop](docs/kafka-4.png)
+
 Then, you can apply the configuration to OpenShift using:
 ```shellscript
 oc apply -f 03_kafdrop.yaml
@@ -126,5 +129,80 @@ Next, we need to define the route information and the deployment variables. The 
 Next, scroll down to the bottom of the page and click on deployment:
 ![pneumonia-risk-detection-dpl-3](docs/pneumonia-risk-detection-dpl-3.png)
 Here we can define the environment variable used by the application:
+![pneumonia-risk-detection-dpl-4](docs/pneumonia-risk-detection-dpl-4.png)
+You can follow the progress of the deployment in the webconsole and once it has completed we need to expose the metrics service point to Prometheus. Please recall that the UI only allowed us to specify one route with one port. Luckily, the second endpoint is internal to OpenShift and only requires an update to the service definition and no need to have an additional route. You can get to the service defition by switching over to the Administrator view and then select Networking->Services where you will see the list of all available services, or from the Topology view, click on the deployment ring of the freshly deployed pneumonia-risk-detection application and then click on the pneumonia-risk-detection service link.
+![pneumonia-risk-detection-dpl-5](docs/pneumonia-risk-detection-dpl-5.png)
+On the service details page, switch to YAML view to edit the service settings. There we need to expose another port where the metrics service is running for the Seldon microservice deployed in the application pod. By default for Seldon this is on port 6000. So let's add another port entry under the spec:ports section for it. Your ports section of the file should look like below:
+![pneumonia-risk-detection-dpl-6](docs/pneumonia-risk-detection-dpl-6.png)
+Click save and reload to ensure your changes are current. Alternatively this verification is visible also by switching back to the Details tab (after the save) where you should see a new entry in the service port mapping area of the web page:
+![pneumonia-risk-detection-dpl-7](docs/pneumonia-risk-detection-dpl-7.png)
+
+Next, let's deploy, in a similar fashion, the other applications:
+* `pneumonia-kafka-lstnr`: this is the service that will receive the Kafka messages from the Kafka xray-images topic. It's purpose is to extract the metadata required by the pneumonia-risk-detection service to perform a prediction: the S3 bucket information (access keys, name, file_name, etc.). These are then transformed into an ndarray type (as JSON payload) as expected by the pneumonia-risk-detection service
+* `image-uploader` from the `utils` directory: this application simulates the work of the xray technicians at a hospital. It will look at a predermined bucket with fake_id xray images and push to the input bucket randomly selected images, with a 80/20 ratio of NORMAL vs PNEUMONIA images.
+* `xrayweb` from the `utils` directory: this application is a webapp used to showcase a frontend application which may be used by the specialist doctors to view the xray images and their pneumonia risk assessment provided by the ML model.
+
+For the `pneumonia-kafka-lstnr` service, we shall use the Dockerfile based S2i deployment, with a DeploymentConfig option and secure route just as we did for the pneumonia risk detection service. Please make sure you set the context folder value for Git to "/pneumonia-kafka-lstnr". Then, for the Deployment variables set the ones required by the service: region_name, pneumonia_service_endpoint (which is the pneumonia risk detection application endpoint on the /predict resource), and the AWS endpoint credentials:
+![pneumonia-lstnr-dpl-1](docs/pneumonia-lstnr-dpl-1.png)
+
+For the `image-uploader` application, all the steps are similar to the ones used by the previous app deployments. Remember to use as context directory for the Git repository settings the "/utils/image-uploader" folder and for the deployment variables set the AWS credentials and access point as well as the source and destination buckets that should be the ones you created with the [S3 buckets creation](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/s3-buckets.ipynb) notebook. Additionally, there is a SECONDS_WAIT variable which initially should be set to zero (0). This will keep the image-uploader from sending images until you change this value to a number (i.e. 2, and then it will send an image every 2 seconds). This is a very convenient way to control application logic without tearing down the deployment.
+![img-uploader-dpl-1](docs/image-uploader-dpl-1.png)
+
+Now, it's time for the `xrayweb` webapp deployment, which follows through the same steps, having though context Git folder set to "utils/xrayweb", the route set to use secure settings, and using the 8080 port for the service, and the following environment variables set: database connection values (host, user, password, dbname) and S3 access information (key, secret, endpoint and bucket with the images to be evaluated):
+![xrayweb-dpl-1](docs/xrayweb-dpl-1.png)
+
+Wait for the application to be deployed and then connect to the pod's terminal to initialize the application and its database schema (remember we deployed earlier a database however the sample database 'xraylab' is empty, it does not contain any tables). The `xrayweb` it's a Django based webapp therefore we shall use the Django framework initializers for database and creation of one superuser so that the applcation may be properly used.
+Connect to the `xrayweb` webapp's pod terminal and ensure you are in the folder where the `manage.py` file is (by default it should be in "/app"). Initialize the database by running the following command:
+```shellscript
+python manage.py migrate
+```
+Once the script completed, create a superuser to access the admin console of the webapp by running the following command in the terminal:
+```shelscript
+python manage.py createsuperuser
+```
+The script shall ask you to provide a superuser name and a password. 
+![xrayweb-dpl-2](docs/xrayweb-dpl-2.png)
+
+After setting the administrator account up, using your web browser, navigate to the route URL of the `xrayweb` application and change the resource to be the "/admin". Use the credentials you've just created to login and create other regular users (i.e. user1, user2) which should act as the usernames used by the specialist doctors.
+![xrayweb-dpl-3](docs/xrayweb-dpl-3.png)
+![xrayweb-dpl-4](docs/xrayweb-dpl-4.png)
+Log out and then log back in via the default route of the webapp using one of the regular users you just created. At this time the webapp should return an empty result set give that we did not use yet the prediction service.
+![xrayweb-dpl-5](docs/xrayweb-dpl-5.png)
+Before we can view some data here we must do a few more things:
+* create a kafka read event for the `xray-images` topic to pass on the messages to the listener service
+* create a kafka notification service by executing the [SNS notification](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/create_notifications.ipynb) notebook.
+* fire up the image-uploader by changing the SECONDS_WAIT variable's value from 0 to another positive value (can be any real number greater than zero, nevertheless be mindfull of the value you select: if it's too small you might create a high load on Kafka, thus for a typical demonstration I recommend setting the value to be an integer value between 2 and 5).
+
+First, let's setup the notification service, therefore open up in Jupuyter the [SNS notification](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/create_notifications.ipynb) notebook and run all the cells.
+Then, to create the Kafka read event, we shall use the knative-eventing functionality. Switch to the Administrator view in the OpenShift web console and ensure the current project is still `xraylab`. Then, open up Serverless->Eventing and open the Even Sources tab.
+![kafka-read-event-1](docs/kafka-read-event-1.png)
+Here, create an event source and select Kafka event source:
+![kafka-read-event-2](docs/kafka-read-event-2.png)
+You can then use the form or the YAML based view to fill out the required information:
+* boostrap server: <kafka-broker-name>-kafka-boostrap.<namespace>.svc.cluster.local:9092, which is the kafka boostrap service name and port
+* topics, i.e. xray-images
+* consumer-group which should be the label of the listener service, i.e. pneumonia-kafka-lstnr
+* sink information which is the URI endpoint of the receiving service (the pneumonia-kafka-lstnr) using the following pattern: http://<listener-svc-name>.<namespace>.svc.cluster.local:8080/ (e.g., http://pneumonia-kafka-lstnr.xraylab.svc.cluster.local:8080/). Note this is the internal name of the service (not an external route), and should NOT be secure http.
+* application information which should be the listener application (the groupping will be visible on the Topology view): pneumonia-kafka-lstnr
+* name of the source (e.g., kafka-source-xraylab)
+![kafka-read-event-3](docs/kafka-read-event-3.png)
+![kafka-read-event-4](docs/kafka-read-event-4.png)
+
+Now, all that remains is to trigger some image uploads to the S3 bucket `ml-pneumonia`. To do that, we need to change the value of SECONDS_WAIT of the xray-image-uploader DeploymentConfig. 
+Using the OpenShift web console's Administrator view, select the xraylab project as active and navigate to Workloads->DeploymentConfigs and then click on the image uploader deployment configuration then switch to the "Environment" tab where you can update the variable value (e.g. set it to 5 and save it).
+![img-upload-trigger-1](docs/img-upload-trigger-1.png)
+
+Depending on the value you set for SECONDS_WAIT, you should be seeing after that amount of seconds has passed new data in the xrayweb webapp:
+![xrayweb-dpl-6](docs/xrayweb-dpl-6.png)
+![xrayweb-dpl-7](docs/xrayweb-dpl-7.png)
+
+### The Operations Engineer user stories details
+Now it's time to monitor the service. We shall use for this purpose the Grafana and Prometheus deployments from the Open Data Hub's instance (the `odh` project).
+Since the resources we want to monitor are in a different namespace, first we must setup the right ACL for the `odh` namespace to access resources from the `xraylab` namespace. To achieve that we must add a role binding to the `odh` project.
+
+
+
+
+
 
 
