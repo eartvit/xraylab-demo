@@ -37,7 +37,7 @@ Allow the instance to be fully created before you proceed to the next step (depe
 #### Setup Red Hat Container Storage
 Select the `openshift-storage` project (in the Administrator view) and Installed Operators->OpenShift Container Storage and then create an instance. Note the cluster requires three worker nodes for HA purposes so ensure that condition is satisfied. In case you don't have three available nodes, go to Compute and increase the Machine Sets/Machines are needed before provisioning a new Node.
 Once you created a cluster please be patient for it to become available (a small cluster of 0.5 TB is sufficient for the purposes of this scenario).
-This scenario uses a Rados GW for notifications over the Object Storage. The definition of it is provided in the [01_cephobjectstore.yaml](01_cephobjectstore.yaml) file.
+This scenario uses a Rados GW for notifications over the Object Storage. If you are running OpenShift on AWS, OpenShift Container Storage won’t have deployed an ObjectStore and the RadosGateway that is needed for bucket notifications. The definition of it is provided in the [01_cephobjectstore.yaml](01_cephobjectstore.yaml) file.
 You can use the openshift client to install everything:
 ```shellscript
 oc apply -f 01_cephobjectstore.yaml
