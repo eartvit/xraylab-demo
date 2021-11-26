@@ -16,7 +16,9 @@ db_user = os.environ['database_user']
 db_password = os.environ['database_password']
 db_host = os.environ['database_host']
 db_db = os.environ['database_db']
-service_point = os.environ['service_point']
+service_point = os.environ['storage_service_point']
+ssl_verify = os.environ['storage_ssl_verify']
+
 
 class TestXRay(object):
   def __init__(self):
@@ -60,13 +62,24 @@ class TestXRay(object):
     path_name = str(df.iloc[0]['file_path_name'])
 
     bucket_name_processed = bucket_name+'-processed'
-
-    s3 = boto3.client('s3',
-                endpoint_url = service_point,
-                aws_access_key_id = aws_access_key_id,
-                aws_secret_access_key = aws_secret_access_key,
-                region_name = region_name,
-                config=botocore.client.Config(signature_version = 's3'))                
+    
+    s3 = None
+    
+    if ssl_verify == True:
+      s3 = boto3.client('s3',
+                  endpoint_url = service_point,
+                  aws_access_key_id = aws_access_key_id,
+                  aws_secret_access_key = aws_secret_access_key,
+                  region_name = region_name,
+                  config=botocore.client.Config(signature_version = 's3'))
+    else:
+      s3 = boto3.client('s3',
+                  endpoint_url = service_point,
+                  aws_access_key_id = aws_access_key_id,
+                  aws_secret_access_key = aws_secret_access_key,
+                  region_name = region_name,
+                  verify = False,
+                  config=botocore.client.Config(signature_version = 's3'))
 
 
     file_name = path_name.split('/')[-1]    

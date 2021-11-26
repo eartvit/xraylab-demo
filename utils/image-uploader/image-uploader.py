@@ -26,13 +26,25 @@ bucket_destination_name = os.environ['BUCKET_BASE_NAME']
 seconds_wait = float(os.environ['SECONDS_WAIT'])
 
 # Resources
+ssl_verify = os.environ['STORAGE_SSL_VERIFY']
 
-s3 = boto3.client('s3',
-                endpoint_url = service_point,
-                aws_access_key_id = access_key,
-                aws_secret_access_key = secret_key,
-                region_name = 'default',
-                config=botocore.client.Config(signature_version = 's3'))                
+s3 = None
+    
+if ssl_verify == True:
+  s3 = boto3.client('s3',
+              endpoint_url = service_point,
+              aws_access_key_id = aws_access_key_id,
+              aws_secret_access_key = aws_secret_access_key,
+              region_name = region_name,
+              config=botocore.client.Config(signature_version = 's3'))
+else:
+  s3 = boto3.client('s3',
+              endpoint_url = service_point,
+              aws_access_key_id = aws_access_key_id,
+              aws_secret_access_key = aws_secret_access_key,
+              region_name = region_name,
+              verify = False,
+              config=botocore.client.Config(signature_version = 's3'))
 
 ########
 # Code #
