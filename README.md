@@ -203,6 +203,11 @@ In the Administrator view open User Management->Role Bindings and click on Creat
 ![odh-role-binding-1](docs/odh-role-binding-1.png)
 On the following screen select a cluster wide role binding. Give a name to the binding, e.g. xraylab-mon-prometheus, select 'view' for the role, and the subject should be ServiceAccount with the namespace where the Prometheus is deployed (odh in our case) and for the subject type in `prometheus-k8s`
 ![odh-role-binding-2](docs/odh-role-binding-2.png)
+For convenience, the same is found in the [04_odh_role_binding.yaml](04_odh_role_binding.yaml) file in this repository, therefore, the role binding can be applied directly from the CLI:
+```shellscript
+oc project odh
+oc apply -f 04_odh_role_binding.yaml
+```
 
 Next, we can create a new service monitor for the Prometheus instance from the ODH project (the project where the Open Data Hub instance was created in the [prerequisites](https://github.com/eartvit/xraylab-demo/tree/main/prerequisites) section).
 Select Installed Operators and then Prometheus Operator
@@ -213,12 +218,8 @@ While you can fill in all the details using the form view, it may be easier to d
 The contents of the file should be as depicted by the next picture. 
 ![odh-prom-3](docs/odh-prom-3.png)
 It is extremely important the service monitor has as label `team=opendatahub`, otherwise the ODH Prometheus instance will not add the target to its list of monitored targets. The target is by the selector which shoould be the `pneumonia-risk-detection` service where we defined earlier the `6000-metrics` port as the port where the metrics endpoint shall be exposed.
-For convenience, the same is found in the [04_odh_role_binding.yaml](04_odh_role_binding.yaml) file in this repository, therefore, the role binding can be applied directly from the CLI:
-```shellscript
-oc project odh
-oc apply -f 04_odh_role_binding.yaml
-```
-Next, we can create the Grafan dashboard for this project. This can be done directly from OpenShift or through the Grafana UI. We shall use the Grafana instance in this case. The default (provisioned) credentials for Grafana are root/secret. They can be viewed in OpenShift on the Workloads->Secrets page under grafana-amin-credentials secrets:
+
+Next, we can create the Grafana dashboard for this project. This can be done directly from OpenShift by adding the yaml definition of a dashboard, or through the Grafana UI. We shall use the Grafana instance in this case. The default (provisioned) credentials for Grafana are root/secret. They can be viewed in OpenShift on the Workloads->Secrets page under grafana-amin-credentials secrets:
 ![grafana-1](docs/grafana-1.png)
 The Grafana dashboard may be accessed via the Networking->Routes section or from the ODH Dashboard. By default you are not logged in and in view mode, so please login first to create the new datasources and then the dashboard.
 Now we can create a dashboard for our pneumonia-risk-detection service.
