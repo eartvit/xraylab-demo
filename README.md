@@ -40,7 +40,7 @@ Then you can create a notebook server (select medium size for this showcase).
 ![jupyter-medium-ds-image](docs/jupyter-medium-ds-image-1.png)
 Now the environment is prepared to kick-off the work of the data scientists. This showcase stores a sample model training notebook and some additional notebooks required to setup the S3 buckets and the SNS notification service to trigger kafka messages whenever a new image is uploaded to an input bucket. To obtain these notebooks from the current repository, create a new notebook in the Jupyter instance and enter the following commands in a code cell and execute them:
 ```
-!pip install git+git://github.com/HR/github-clone
+!pip install git+https://github.com/HR/github-clone
 !pip install tensorflow
 !pip install boto3
 !ghclone https://github.com/eartvit/xraylab-demo/tree/main/notebooks
