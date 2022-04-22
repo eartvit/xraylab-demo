@@ -5,7 +5,7 @@ werkzeug==2.0.2
 itsdangerous==2.0.1
 seldon-core==1.13.1
 scikit-learn
-mysql-connector-python==8.0.*
+mysql-connector-python==8.0.27
 boto3==1.19.1
 numpy==1.19.5
 pillow==8.3.2
