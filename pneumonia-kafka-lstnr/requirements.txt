@@ -1,2 +1,4 @@
-Flask==1.1.2
+werkzeug==2.0.2
+itsdangerous==1.1.0
+Flask==1.1.4
 requests==2.26.0
