@@ -135,7 +135,9 @@ Note that ```storage_ssl_verify``` should be set to ```True``` or ```False``` de
 You can follow the progress of the deployment in the webconsole and once it has completed we need to expose the metrics service point to Prometheus. Please recall that the UI only allowed us to specify one route with one port. Luckily, the second endpoint is internal to OpenShift and only requires an update to the service definition and no need to have an additional route. You can get to the service defition by switching over to the Administrator view and then select Networking->Services where you will see the list of all available services, or from the Topology view, click on the deployment ring of the freshly deployed pneumonia-risk-detection application and then click on the pneumonia-risk-detection service link.
 ![pneumonia-risk-detection-dpl-5](docs/pneumonia-risk-detection-dpl-5.png)
 On the service details page, switch to YAML view to edit the service settings. There we need to expose another port where the metrics service is running for the Seldon microservice deployed in the application pod. By default for Seldon this is on port 6000. So let's add another port entry under the spec:ports section for it. Your ports section of the file should look like below:
+
 ![pneumonia-risk-detection-dpl-6](docs/pneumonia-risk-detection-dpl-6.png)
+
 Click save and reload to ensure your changes are current. Alternatively this verification is visible also by switching back to the Details tab (after the save) where you should see a new entry in the service port mapping area of the web page:
 ![pneumonia-risk-detection-dpl-7](docs/pneumonia-risk-detection-dpl-7.png)
 
@@ -148,7 +150,7 @@ For the `pneumonia-kafka-lstnr` service, we shall use the Dockerfile based S2i d
 ![pneumonia-lstnr-dpl-1](docs/pneumonia-lstnr-dpl-1.png)
 
 For the `image-uploader` application, all the steps are similar to the ones used by the previous app deployments. Remember to use as context directory for the Git repository settings the "/utils/image-uploader" folder and for the deployment variables set the AWS credentials and access point as well as the source and destination buckets that should be the ones you created with the [S3 buckets creation](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/s3-buckets.ipynb) notebook. Additionally, there is a SECONDS_WAIT variable which initially should be set to zero (0). This will keep the image-uploader from sending images until you change this value to a number (i.e. 2, and then it will send an image every 2 seconds). This is a very convenient way to control application logic without tearing down the deployment.
-![img-uploader-dpl-1](docs/image-uploader-dpl-1.png)
+![img-uploader-dpl-1](docs/img-uploader-dpl-1.png)
 
 Now, it's time for the `xrayweb` webapp deployment, which follows through the same steps, having though context Git folder set to "utils/xrayweb", the route set to use secure settings, and using the 8080 port for the service, and the following environment variables set: database connection values (host, user, password, dbname) and S3 access information (key, secret, endpoint and bucket with the images to be evaluated):
 ![xrayweb-dpl-1](docs/xrayweb-dpl-1.png)
