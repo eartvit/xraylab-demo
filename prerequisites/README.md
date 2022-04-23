@@ -63,7 +63,7 @@ From the output of this command, note and keep the following user informations:
 
 
 #### Setup Open Data Hub 
-Open Data Hub must run in its own namespace. Create a new project called `odh`, select it as active project and then go to Installed Operators->Open Data Hub Operator to create an intance:
+Open Data Hub must run in its own namespace. Create a new project called `opendatahub`, select it as active project and then go to Installed Operators->Open Data Hub Operator to create an intance:
 ![odh1](docs/odh-1.png)
 As we will use only a few of the ODH components in this showcase, switch to the YAML view and ensure only the following applications are listed under the `spec` tag: odh-common, grafana-cluster, grafana-instance, prometheus-operator, jupyterhub, notebook-images, odh-dashboard. (Please ensure the repos tag is also kept under the spec).
 ![odh2](docs/odh-2.png)
@@ -73,5 +73,12 @@ oc apply -f 02_opendatahub.yaml
 ```
 
 #### Create the project for the showcase
-As a final preparation step, we need a project to deploy the applications from the showcase. The default one is assumed to be xraylab. You may opt for a different name, just make sure you fill in the right name in later steps of the showcase setup.
+We need a project to deploy the applications from the showcase. The default one is assumed to be xraylab. You may opt for a different name, just make sure you fill in the right name in later steps of the showcase setup.
+
+#### Install Red Hat AMQ Streams Operator
+The AMQ Streams Operator is lightweight high-performance, robust messaging platform based on Apache Kafka. Although the documentation suggests a per project installation of the operator, my personal choice is to have a global installation of the operator and then instances may be created separately for different projects. This showcase assumes the AMQ Streams operator has been installed globally in OpenShift and then an instance is created inside the showcase project space (created at the previous step, named ```xraylab```). 
+The next picture shows the available operators and their namespaces applicable to this showcase:
+![operators](docs/operators-list.png)
+
+
 
