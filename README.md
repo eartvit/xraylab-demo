@@ -150,7 +150,7 @@ For the `pneumonia-kafka-lstnr` service, we shall use the Dockerfile based S2i d
 ![pneumonia-lstnr-dpl-1](docs/pneumonia-lstnr-dpl-1.png)
 
 For the `image-uploader` application, all the steps are similar to the ones used by the previous app deployments. Remember to use as context directory for the Git repository settings the "/utils/image-uploader" folder and for the deployment variables set the AWS credentials and access point as well as the source and destination buckets that should be the ones you created with the [S3 buckets creation](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/s3-buckets.ipynb) notebook. Additionally, there is a SECONDS_WAIT variable which initially should be set to zero (0). This will keep the image-uploader from sending images until you change this value to a number (i.e. 2, and then it will send an image every 2 seconds). This is a very convenient way to control application logic without tearing down the deployment.
-![img-uploader-dpl-1](docs/img-uploader-dpl-1.png)
+![img-uploader-dpl-1](docs/img-uploader-dpl-1-new.png)
 
 Now, it's time for the `xrayweb` webapp deployment, which follows through the same steps, having though context Git folder set to "utils/xrayweb", the route set to use secure settings, and using the 8080 port for the service, and the following environment variables set: database connection values (host, user, password, dbname) and S3 access information (key, secret, endpoint and bucket with the images to be evaluated):
 ![xrayweb-dpl-1](docs/xrayweb-dpl-1.png)
