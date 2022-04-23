@@ -64,9 +64,9 @@ From the output of this command, note and keep the following user informations:
 
 #### Setup Open Data Hub 
 Open Data Hub must run in its own namespace. Create a new project called `opendatahub`, select it as active project and then go to Installed Operators->Open Data Hub Operator to create an intance:
-![odh1](docs/odh-1.png)
+![odh1](docs/odh-1-new.png)
 As we will use only a few of the ODH components in this showcase, switch to the YAML view and ensure only the following applications are listed under the `spec` tag: odh-common, grafana-cluster, grafana-instance, prometheus-operator, jupyterhub, notebook-images, odh-dashboard. (Please ensure the repos tag is also kept under the spec).
-![odh2](docs/odh-2.png)
+![odh2](docs/odh-2-new.png)
 Alternatively, you can create the ODH instance with the help of the oc CLI by applying the [02_opendatahub.yaml](02_opendatahub.yaml) file:
 ```shellscript
 oc apply -f 02_opendatahub.yaml
