@@ -129,7 +129,9 @@ Next, we need to define the route information and the deployment variables. The 
 Next, scroll down to the bottom of the page and click on deployment:
 ![pneumonia-risk-detection-dpl-3](docs/pneumonia-risk-detection-dpl-3.png)
 Here we can define the environment variable used by the application:
-![pneumonia-risk-detection-dpl-4](docs/pneumonia-risk-detection-dpl-4.png)
+![pneumonia-risk-detection-dpl-4](docs/pneumonia-risk-detection-dpl-4-new.png)
+Note that ```storage_ssl_verify``` should be set to ```True``` or ```False``` depending on your clusters registered certificates level of trust. The general case ensuring full compatibility (with less security) is to set it to ```False```.
+
 You can follow the progress of the deployment in the webconsole and once it has completed we need to expose the metrics service point to Prometheus. Please recall that the UI only allowed us to specify one route with one port. Luckily, the second endpoint is internal to OpenShift and only requires an update to the service definition and no need to have an additional route. You can get to the service defition by switching over to the Administrator view and then select Networking->Services where you will see the list of all available services, or from the Topology view, click on the deployment ring of the freshly deployed pneumonia-risk-detection application and then click on the pneumonia-risk-detection service link.
 ![pneumonia-risk-detection-dpl-5](docs/pneumonia-risk-detection-dpl-5.png)
 On the service details page, switch to YAML view to edit the service settings. There we need to expose another port where the metrics service is running for the Seldon microservice deployed in the application pod. By default for Seldon this is on port 6000. So let's add another port entry under the spec:ports section for it. Your ports section of the file should look like below:
