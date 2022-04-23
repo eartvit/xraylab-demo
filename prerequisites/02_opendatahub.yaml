@@ -1,7 +1,7 @@
 ﻿apiVersion: kfdef.apps.kubeflow.org/v1
 kind: KfDef
 metadata:
-  namespace: odh
+  namespace: opendatahub
   name: opendatahub
 spec:
   applications:
