@@ -59,7 +59,7 @@ def kafka_listener():
     }
     
     try:    
-      resp = requests.post(service_point, json=message)
+      resp = requests.post(url=service_point, json=message, verify=False)
       logging.info(f"Processed request results: {resp}")
     except Exception as e:
       results_OK = False
