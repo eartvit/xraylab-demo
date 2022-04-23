@@ -177,7 +177,7 @@ Before we can view some data here we must do a few more things:
 * create a kafka notification service by executing the [SNS notification](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/create_notifications.ipynb) notebook.
 * fire up the image-uploader by changing the SECONDS_WAIT variable's value from 0 to another positive value (can be any real number greater than zero, nevertheless be mindfull of the value you select: if it's too small you might create a high load on Kafka, thus for a typical demonstration I recommend setting the value to be an integer value between 2 and 5).
 
-First, let's setup the notification service, therefore open up in Jupuyter the [SNS notification](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/create_notifications.ipynb) notebook and run all the cells.
+First, let's setup the notification service, therefore open up in Jupyter the [SNS notification](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/create_notifications.ipynb) notebook and run all the cells.
 Then, to create the Kafka read event, we shall use the knative-eventing functionality. Switch to the Administrator view in the OpenShift web console and ensure the current project is still `xraylab`. Then, open up Serverless->Eventing and open the Even Sources tab.
 ![kafka-read-event-1](docs/kafka-read-event-1.png)
 Here, create an event source and select Kafka event source:
