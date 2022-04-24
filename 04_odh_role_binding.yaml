@@ -2,11 +2,11 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: ml-mon-prometheus
-  namespace: odh
+  namespace: opendatahub
 subjects:
   - kind: ServiceAccount
     name: prometheus-k8s
-    namespace: odh
+    namespace: opendatahub
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
