@@ -225,7 +225,7 @@ The view opens up with the Details tab, so switch over to the Service Monitor ta
 While you can fill in all the details using the form view, it may be easier to do it by editing directly the YAML file instead.
 The contents of the file should be as depicted by the next picture. 
 ![odh-prom-3](docs/odh-prom-3-new.png)
-It is extremely important the service monitor has as label `team=opendatahub`, otherwise the ODH Prometheus instance will not add the target to its list of monitored targets. The target is by the selector which shoould be the `pneumonia-risk-detection` service where we defined earlier the `6000-metrics` port as the port where the metrics endpoint shall be exposed.
+It is extremely important the service monitor has as label `team=opendatahub`, otherwise the ODH Prometheus instance will not add the target to its list of monitored targets. The target is by the selector which should be the `pneumonia-risk-detection` service where we defined earlier the `6000-metrics` port as the port where the metrics endpoint shall be exposed.
 
 Next, we can create the Grafana dashboard for this project. This can be done directly from OpenShift by adding the yaml definition of a dashboard, or through the Grafana UI. We shall use the Grafana instance in this case. The default (provisioned) credentials for Grafana are root/secret. They can be viewed in OpenShift on the Workloads->Secrets page under grafana-amin-credentials secrets:
 ![grafana-1](docs/grafana-1-new.png)
