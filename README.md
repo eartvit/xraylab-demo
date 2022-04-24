@@ -147,7 +147,9 @@ Next, let's deploy, in a similar fashion, the other applications:
 * `xrayweb` from the `utils` directory: this application is a webapp used to showcase a frontend application which may be used by the specialist doctors to view the xray images and their pneumonia risk assessment provided by the ML model.
 
 For the `pneumonia-kafka-lstnr` service, we shall use the Dockerfile based S2i deployment, with a DeploymentConfig option and secure route just as we did for the pneumonia risk detection service. Please make sure you set the context folder value for Git to "/pneumonia-kafka-lstnr". Then, for the Deployment variables set the ones required by the service: region_name, pneumonia_service_endpoint (which is the pneumonia risk detection application endpoint on the /predict resource), and the AWS endpoint credentials:
-![pneumonia-lstnr-dpl-1](docs/pneumonia-lstnr-dpl-1.png)
+![pneumonia-lstnr-dpl-1](docs/pneumonia-lstnr-dpl-1-new.png)
+
+Because for the target of the kafka listener service we use the internal service route it is safe to use the http request. In fact, using internal service routes are a best practice for inter-service communication inside a kubernetes cluster (not just for OpenShift) as it's not only safe but it also minimizes the external traffic (over the Internet) which may be metered by the cloud provider.
 
 For the `image-uploader` application, all the steps are similar to the ones used by the previous app deployments. Remember to use as context directory for the Git repository settings the "/utils/image-uploader" folder and for the deployment variables set the AWS credentials and access point as well as the source and destination buckets that should be the ones you created with the [S3 buckets creation](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/s3-buckets.ipynb) notebook. Additionally, there is a SECONDS_WAIT variable which initially should be set to zero (0). This will keep the image-uploader from sending images until you change this value to a number (i.e. 2, and then it will send an image every 2 seconds). This is a very convenient way to control application logic without tearing down the deployment.
 ![img-uploader-dpl-1](docs/img-uploader-dpl-1-new.png)
@@ -190,6 +192,8 @@ You can then use the form or the YAML based view to fill out the required inform
 * application information which should be the listener application (the groupping will be visible on the Topology view): pneumonia-kafka-lstnr
 * name of the source (e.g., kafka-source-xraylab)
 ![kafka-read-event-3](docs/kafka-read-event-3.png)
+
+Alternatively, the event may be created using a yaml file
 ![kafka-read-event-4](docs/kafka-read-event-4.png)
 
 Now, all that remains is to trigger some image uploads to the S3 bucket `ml-pneumonia`. To do that, we need to change the value of SECONDS_WAIT of the xray-image-uploader DeploymentConfig. 
