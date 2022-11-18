@@ -37,11 +37,16 @@ Allow the instance to be fully created before you proceed to the next step (depe
 #### Setup Red Hat Container Storage
 Select the `openshift-storage` project (in the Administrator view) and Installed Operators->OpenShift Container Storage and then create an instance. Note the cluster requires three worker nodes for HA purposes so ensure that condition is satisfied. In case you don't have three available nodes, go to Compute and increase the Machine Sets/Machines are needed before provisioning a new Node.
 Once you created a cluster please be patient for it to become available (a small cluster of 0.5 TB is sufficient for the purposes of this scenario).
-This scenario uses a Rados GW for notifications over the Object Storage. If you are running OpenShift on AWS, OpenShift Container Storage won’t have deployed an ObjectStore and the RadosGateway that is needed for bucket notifications. The definition of it is provided in the [01_cephobjectstore.yaml](01_cephobjectstore.yaml) file.
-You can use the openshift client to install everything:
+This scenario uses a Rados GW for notifications over the Object Storage. If you are running OpenShift on AWS, OpenShift Container Storage won’t have deployed an ObjectStore and the RadosGateway that is needed for bucket notifications. The definition of it is provided in the [01_cephobjectstore.yaml](01_cephobjectstore.yaml) file (for OpenShift Container Storage version 4.8) or [01_cephobjectstore_odf.yaml](01_cephobjectstore_odf.yaml) (for OpenShift Data Foundations version 4.9+).
+You can use the openshift client to perform the installation as follows for ODF 4.8:
 ```shellscript
 oc apply -f 01_cephobjectstore.yaml
 ```
+Or as bellow for ODF 4.9+:
+```shellscript
+oc apply -f 01_cephobjectstore_odf.yaml
+```
+
 Wait for the Object Store to be created; this is done when a pod with "rgw" in its name appears with running state within the openshift-storage project.
 
 ***Note!*** If the RGW service was already deployed (when you're not on AWS), it cannot initially be reached from the outside world. Since in the real world the images may be hosted in a different cluster, and as the web-app requires access to these images to display them, an external Route needs to be created for this service (recommended to be a secure route). There are several ways to do this (OpenShift web console or the CLI). Note the last section of the `01_cephobjectstore.yaml` file contains a route definition that may be used as an example in your environment.
