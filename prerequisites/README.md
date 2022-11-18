@@ -5,7 +5,7 @@
 Have access to a Red Hat OpenShift platform (tested on 4.7.x and 4.8.x). The operator versions mentioned below have been the ones used at the time of writing this document. It is very likely the setup may be executed on newer versions of the operator images.
 Install the following operators from Operator hub. Please be patient and wait for each operator to be installed before proceeding to the next one:
 * Red Hat OpenShift Serverless (v. 1.18.0)
-* OpenShift Container Storage (v. 4.8.3)
+* OpenShift Container Storage (v. 4.8.3, v. 4.9.12, 4.10.x)
 * Open Data Hub Operator (v. 1.1.1)
 * Red Hat Integration AMQ Streams (v. 1.8.2)
 * Red Hat OpenShift Pipelines (v. 1.5.2) - optional, may be used to create automated build/deploy pipelines triggered by Git change web-hooks.
