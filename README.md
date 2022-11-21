@@ -6,7 +6,7 @@ This showcase is a variant of the one created by Guillaume Moutier which can be 
 
 The main idea behind this showcase is to demonstrate the end to end capabilities of Red Hat Openshift for developing and deploying integrated Machine Learning workloads.
 
-Please note the solution has been tested on Red Hat OpenShift 4.7.x and 4.8.x and may require some changes on other versions of the platform.
+Please note the solution has been tested on Red Hat OpenShift 4.7.x, 4.8.x, 4.9.x and 4.10.x and may require some changes on other versions of the platform.
 
 ## Let's get started
 Recent advances in the field of Machine Learning have made very attractive its use to researchers and developers. One of such advancement is in the image processing and analysis domain and this showcase presents an intelligent application ecosystem that uses Convolutional Neural Networks (CNN) to process labeled x-ray images for pneumonia risk detection purposes to help health practitioners in their daily work (e.g., performing patient triage based on the prediction of the ML model).
