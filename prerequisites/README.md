@@ -6,7 +6,7 @@ Have access to a Red Hat OpenShift platform (tested on 4.7.x and 4.8.x). The ope
 Install the following operators from Operator hub. Please be patient and wait for each operator to be installed before proceeding to the next one:
 * Red Hat OpenShift Serverless (v. 1.18.0)
 * OpenShift Container Storage (v. 4.8.3, v. 4.9.12, 4.10.x)
-* Open Data Hub Operator (v. 1.1.1)
+* Open Data Hub Operator (v. 1.1.1, 1.1.2, 1.4.0)
 * Red Hat Integration AMQ Streams (v. 1.8.2)
 * Red Hat OpenShift Pipelines (v. 1.5.2) - optional, may be used to create automated build/deploy pipelines triggered by Git change web-hooks.
 
@@ -68,6 +68,8 @@ From the output of this command, note and keep the following user informations:
 
 
 #### Setup Open Data Hub 
+*Update (2022, November): The OpenDataHub operator latest version at the before mentioned date is 1.4.0. This version comes with significant compared to earlier versions, however it will still work as is on a 4.9 and 4.10 version OpenShift cluster. The screenshots in the procedure below were made using version 1.1.1 of the operator. If you wish to test out the setup using 1.1.1 or 1.1.2 versions of the operator then the OpenDataHub operator must be installed from the command line by applying the appropriate operator subscription (as a cluster admin user) using the ```oc apply -f <sub.yaml>``` command. Once the subscription has been applied, it must be approved manually inside the Web Console. Please be careful and just approve the installation plan and do not click through all the updates. For convenience, examples of ODH operator subscription files has been added to this demo.*
+
 Open Data Hub must run in its own namespace. Create a new project called `opendatahub`, select it as active project and then go to Installed Operators->Open Data Hub Operator to create an intance:
 ![odh1](docs/odh-1-new.png)
 As we will use only a few of the ODH components in this showcase, switch to the YAML view and ensure only the following applications are listed under the `spec` tag: odh-common, grafana-cluster, grafana-instance, prometheus-operator, jupyterhub, notebook-images, odh-dashboard. (Please ensure the repos tag is also kept under the spec).
