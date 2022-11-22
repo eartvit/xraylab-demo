@@ -36,7 +36,7 @@ def kafka_listener():
   results_OK = True
   ex = None
   
-  if 's3:ObjectCreated' in data['bucket_eventName']:
+  if 'ObjectCreated' in data['bucket_eventName']:
     message = {
         "data":{
             "names":[
@@ -57,6 +57,9 @@ def kafka_listener():
             ]
         }
     }
+
+    logging.info(f"Preparing to call prediction service at: {service_point}")
+    logging.info(f"Message for prediction service: {message}")
     
     try:    
       resp = requests.post(url=service_point, json=message, verify=False)
