@@ -41,12 +41,12 @@ Then you can create a notebook server (select medium size for this showcase).
 Now the environment is prepared to kick-off the work of the data scientists.
 
 If you wish to proceed with RedHat's supported version, [RHODS](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-data-science), install the operator from the Operator Hub:
-[rhods-01](docs/rhods-01.png)
+![rhods-01](docs/rhods-01.png)
 Wait for it to automatically deploy itself inside openshift (takes about 15 minutes) and then access the RHODS UI URL which can be found inside the `redhat-ods-applications` namespace under the Networking->Routes' section:
-[rhods-02](docs/rhods-02.png)
+![rhods-02](docs/rhods-02.png)
 The RHODS UI exposes resources and workflows that simplify the tasks of datascientist for model development and deployment. The concept of a DataScience project groups together Jupyter notebook resources with persistent storage, data connections (which are AWS S3 compatible object stores) from where model binaries are detected by RHODS Model Mesh Service and served via the deployment option. For RHODS pick the Tensorflow based image from the dropdown as it comes configured with almost all the libraries required to complete the exercise:
-[rhods-03](docs/rhods-03.png)
-[rhods-05](docs/rhods-05.png)
+![rhods-03](docs/rhods-03.png)
+![rhods-05](docs/rhods-05.png)
 
 ***NOTE: Please do not install both ODH and RHODS components at the same time. If you wish to use RHODS for your datascience projects, then please install Prometheus and Grafana operators in the namespace of your deployed applications `xraylab` in order to collect metrics and display them on the dashboard***
 
@@ -95,7 +95,7 @@ Now that we have a model trained and a template service created it's time to dep
 
 Before we get to the application developer story, we shall close this section by describing the specifics for deploying models with RHODS.
 From the datascience project created inside the RHODS UI, click on deploy model and fill in the details as depicted in the below picture.
-[rhods-04](docs/rhods-04.png)
+![rhods-04](docs/rhods-04.png)
 ***Note: The above diagram assumes the data connection where the ONNX formatted Tensorflow model binary file resides has been created in an earlier step***
 Click on `Deploy` and wait for it to complete. If successful, you shall see a URL in the dashboard which is the entrypoint for the prediction.
 To perform actual predictions on an image, it must be first converted to a tensor based representation understood by the model. This is done in the different [TestXray.py](https://github.com/eartvit/xraylab-demo/blob/main/rhods-pneumonia-risk-detection/TestXRay.py) file, based in the [rhods-pneumoniarisk-detection](https://github.com/eartvit/xraylab-demo/blob/main/pneumonia-risk-detection/) folder. The TestApp from this folder has been adapted to act as a middle-layer component between the notification service and the prediction service (from the ML-Mesh server). The rest of the functions fulfilled by this application are the same as the one from the ODH operator scenario.

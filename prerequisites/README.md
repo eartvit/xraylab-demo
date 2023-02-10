@@ -84,12 +84,12 @@ oc apply -f 02_opendatahub.yaml
 
 #### Setup Red Hat OpenShift Datascience
 [RHODS](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-data-science) may be installed from the Operator Hub:
-[rhods-01](docs/rhods-01.png)
+![rhods-01](docs/rhods-01.png)
 Click on install and wait for it to automatically deploy itself inside openshift (takes about 15 minutes) and then access the RHODS UI URL which can be found inside the `redhat-ods-applications` namespace under the Networking->Routes' section:
-[rhods-02](docs/rhods-02.png)
+![rhods-02](docs/rhods-02.png)
 The RHODS UI exposes resources and workflows that simplify the tasks of datascientist for model development and deployment. The concept of a DataScience project groups together Jupyter notebook resources with persistent storage, data connections (which are AWS S3 compatible object stores) from where model binaries are detected by RHODS Model Mesh Service and served via the deployment option. For RHODS pick the Tensorflow based image from the dropdown as it comes configured with almost all the libraries required to complete the exercise:
-[rhods-03](docs/rhods-03.png)
-[rhods-05](docs/rhods-05.png)
+![rhods-03](docs/rhods-03.png)
+![rhods-05](docs/rhods-05.png)
 
 #### Create the project for the showcase
 We need a project to deploy the applications from the showcase. The default one is assumed to be xraylab. You may opt for a different name, just make sure you fill in the right name in later steps of the showcase setup.
