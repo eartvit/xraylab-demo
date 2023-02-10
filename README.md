@@ -51,6 +51,7 @@ The RHODS UI exposes resources and workflows that simplify the tasks of datascie
 ***NOTE: Please do not install both ODH and RHODS components at the same time. If you wish to use RHODS for your datascience projects, then please install Prometheus and Grafana operators in the namespace of your deployed applications `xraylab` in order to collect metrics and display them on the dashboard***
 
 This showcase stores a sample model training notebook and some additional notebooks required to setup the S3 buckets and the SNS notification service to trigger kafka messages whenever a new image is uploaded to an input bucket. To obtain these notebooks from the current repository, create a new notebook in the Jupyter instance and enter the following commands in a code cell and execute them:
+
 ***For the ODH component option***
 ```
 !pip install git+https://github.com/HR/github-clone
@@ -99,6 +100,7 @@ From the datascience project created inside the RHODS UI, click on deploy model 
 ***Note: The above diagram assumes the data connection where the ONNX formatted Tensorflow model binary file resides has been created in an earlier step***
 Click on `Deploy` and wait for it to complete. If successful, you shall see a URL in the dashboard which is the entrypoint for the prediction.
 To perform actual predictions on an image, it must be first converted to a tensor based representation understood by the model. This is done in the different [TestXray.py](https://github.com/eartvit/xraylab-demo/blob/main/rhods-pneumonia-risk-detection/TestXRay.py) file, based in the [rhods-pneumoniarisk-detection](https://github.com/eartvit/xraylab-demo/blob/main/pneumonia-risk-detection/) folder. The TestApp from this folder has been adapted to act as a middle-layer component between the notification service and the prediction service (from the ML-Mesh server). The rest of the functions fulfilled by this application are the same as the one from the ODH operator scenario.
+***Note: the RHODS variant of TestXray.py expects an extra OS environment variable from the ODH variant. This variable is the Model-mesh service inference endpoint for the deployed ONXX model. So please ensure you deploy first the ML model to obtain the URL for inference before attempting to deploy TestXray using S2I (which is described in the next section)***
 
 ### The (Fullstack) Application Developer user stories details
 
