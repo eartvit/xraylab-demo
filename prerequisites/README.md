@@ -6,7 +6,7 @@ Have access to a Red Hat OpenShift platform (tested on 4.7.x and 4.8.x). The ope
 Install the following operators from Operator hub. Please be patient and wait for each operator to be installed before proceeding to the next one:
 * Red Hat OpenShift Serverless (v. 1.18.0)
 * OpenShift Container Storage (v. 4.8.3, v. 4.9.12, 4.10.x)
-* Open Data Hub Operator (v. 1.1.1, 1.1.2, 1.4.0)
+* Open Data Hub Operator (v. 1.1.1, 1.1.2, 1.4.0) / RHODS operator
 * Red Hat Integration AMQ Streams (v. 1.8.2)
 * Red Hat OpenShift Pipelines (v. 1.5.2) - optional, may be used to create automated build/deploy pipelines triggered by Git change web-hooks.
 
@@ -68,6 +68,9 @@ From the output of this command, note and keep the following user informations:
 
 
 #### Setup Open Data Hub 
+
+***NOTE: Please do not install both ODH and RHODS components at the same time. If you wish to use RHODS for your datascience projects, then please install Prometheus and Grafana operators in the namespace of your deployed applications `xraylab` in order to collect metrics and display them on the dashboard***
+
 *Update (2022, November): The OpenDataHub operator latest version at the before mentioned date is 1.4.0 (which is going to be installed by default using the Operator Hub). This version comes with significant changes compared to earlier versions, however it will still work as is on a 4.9 and 4.10 version Red Hat OpenShift cluster. The screenshots in the procedure below were made using version 1.1.1 of the ODH operator. If you wish to test out the setup using 1.1.1 or 1.1.2 versions of the operator then the OpenDataHub operator must be installed from the command line by applying the appropriate operator subscription (as a cluster admin user) using the ```oc apply -f <sub.yaml>``` command. Once the subscription has been applied, it must be approved manually inside the Web Console. Please be careful and just approve the installation plan for the desired version and do not click through all the updates. For convenience, examples of ODH operator subscription files (versions 1.1.1 and 1.1.2) have been added to this repository folder. After the installation of the ODH operator please continue with the below steps.*
 
 Open Data Hub must run in its own namespace. Create a new project called `opendatahub`, select it as active project and then go to Installed Operators->Open Data Hub Operator to create an intance:
@@ -78,6 +81,15 @@ Alternatively, you can create the ODH instance with the help of the oc CLI by ap
 ```shellscript
 oc apply -f 02_opendatahub.yaml
 ```
+
+#### Setup Red Hat OpenShift Datascience
+[RHODS](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-data-science) may be installed from the Operator Hub:
+[rhods-01](docs/rhods-01.png)
+Click on install and wait for it to automatically deploy itself inside openshift (takes about 15 minutes) and then access the RHODS UI URL which can be found inside the `redhat-ods-applications` namespace under the Networking->Routes' section:
+[rhods-02](docs/rhods-02.png)
+The RHODS UI exposes resources and workflows that simplify the tasks of datascientist for model development and deployment. The concept of a DataScience project groups together Jupyter notebook resources with persistent storage, data connections (which are AWS S3 compatible object stores) from where model binaries are detected by RHODS Model Mesh Service and served via the deployment option. For RHODS pick the Tensorflow based image from the dropdown as it comes configured with almost all the libraries required to complete the exercise:
+[rhods-03](docs/rhods-03.png)
+[rhods-05](docs/rhods-05.png)
 
 #### Create the project for the showcase
 We need a project to deploy the applications from the showcase. The default one is assumed to be xraylab. You may opt for a different name, just make sure you fill in the right name in later steps of the showcase setup.

@@ -6,7 +6,7 @@ This showcase is a variant of the one created by Guillaume Moutier which can be 
 
 The main idea behind this showcase is to demonstrate the end to end capabilities of Red Hat Openshift for developing and deploying integrated Machine Learning workloads.
 
-Please note the solution has been tested on Red Hat OpenShift 4.7.x, 4.8.x, 4.9.x and 4.10.x and may require some changes on other versions of the platform.
+Please note the solution has been tested on Red Hat OpenShift 4.7.x, 4.8.x, 4.9.x, 4.10.x, 4.11.x and may require some changes on other versions of the platform.
 
 ## Let's get started
 Recent advances in the field of Machine Learning have made very attractive its use to researchers and developers. One of such advancement is in the image processing and analysis domain and this showcase presents an intelligent application ecosystem that uses Convolutional Neural Networks (CNN) to process labeled x-ray images for pneumonia risk detection purposes to help health practitioners in their daily work (e.g., performing patient triage based on the prediction of the ML model).
@@ -30,7 +30,7 @@ The purpose of the showcase is to describe the steps required to build the ecosy
 * As an operations engineer, I want an integrated monitoring dashboard to new applications available on the (production) infrastructure.
 
 ### The Data Scientist user stories details
-Data scientists typically use Jupyter Notebooks in order to perform their work. OpenShift's Open Data Hub project makes available several different Jupyter images for this purpose. 
+Data scientists typically use Jupyter Notebooks in order to perform their work. OpenShift's community upstream datascience project called [Open Data Hub](https://odh.io), as well as RedHat supported Red Hat OpenShift Datascience projects, [RHODS](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-data-science), make available several different Jupyter images for this purpose.
 To get started, head to your OpenShift web console and select the project where the Open Data Hub instance has been deployed (see the [prerequisites](https://github.com/eartvit/xraylab-demo/tree/main/prerequisites)). Then go to Networking->Routes and click on the ODH dashboard. From there you have access to Jupyter Hub/Lab (depending on the version of OpenShift and ODH you used either hub or lab are available). 
 ![odh-routes](docs/odh-routes.png)
 ![odh-dashboard](docs/odh-dashboard.png)
@@ -38,15 +38,39 @@ The first time you instantiate Jupyter it will ask to accept/allow some permissi
 ![jupyther-authorize](docs/jupyter-authorize-1.png)
 Then you can create a notebook server (select medium size for this showcase).
 ![jupyter-medium-ds-image](docs/jupyter-medium-ds-image-1.png)
-Now the environment is prepared to kick-off the work of the data scientists. This showcase stores a sample model training notebook and some additional notebooks required to setup the S3 buckets and the SNS notification service to trigger kafka messages whenever a new image is uploaded to an input bucket. To obtain these notebooks from the current repository, create a new notebook in the Jupyter instance and enter the following commands in a code cell and execute them:
+Now the environment is prepared to kick-off the work of the data scientists.
+
+If you wish to proceed with RedHat's supported version, [RHODS](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-data-science), install the operator from the Operator Hub:
+[rhods-01](docs/rhods-01.png)
+Wait for it to automatically deploy itself inside openshift (takes about 15 minutes) and then access the RHODS UI URL which can be found inside the `redhat-ods-applications` namespace under the Networking->Routes' section:
+[rhods-02](docs/rhods-02.png)
+The RHODS UI exposes resources and workflows that simplify the tasks of datascientist for model development and deployment. The concept of a DataScience project groups together Jupyter notebook resources with persistent storage, data connections (which are AWS S3 compatible object stores) from where model binaries are detected by RHODS Model Mesh Service and served via the deployment option. For RHODS pick the Tensorflow based image from the dropdown as it comes configured with almost all the libraries required to complete the exercise:
+[rhods-03](docs/rhods-03.png)
+[rhods-05](docs/rhods-05.png)
+
+***NOTE: Please do not install both ODH and RHODS components at the same time. If you wish to use RHODS for your datascience projects, then please install Prometheus and Grafana operators in the namespace of your deployed applications `xraylab` in order to collect metrics and display them on the dashboard***
+
+This showcase stores a sample model training notebook and some additional notebooks required to setup the S3 buckets and the SNS notification service to trigger kafka messages whenever a new image is uploaded to an input bucket. To obtain these notebooks from the current repository, create a new notebook in the Jupyter instance and enter the following commands in a code cell and execute them:
+***For the ODH component option***
 ```
 !pip install git+https://github.com/HR/github-clone
 !pip install tensorflow
 !pip install boto3
 !ghclone https://github.com/eartvit/xraylab-demo/tree/main/notebooks
 ```
+
+***For the RHODS component option***
+```
+!pip install git+https://github.com/HR/github-clone
+!ghclone https://github.com/eartvit/xraylab-demo/tree/main/notebooks
+```
+
+Alternatively, in both cases you can clone the GitHub repo directly.
+
 You should see after the completion of the commands that a new directory `notebooks` has been created within your jupyter hub instance:
 ![odh-notebooks](docs/odh-notebooks.png)
+
+***Note: the below description and images have been taken from using ODH. The experience with RHODS is similar since ODH and RHODS both package the same version of Jupyter environments***
 
 Inside the notebooks folder there are three Jupyter notebooks:
 * One example of [pneumonia risk detection ML model](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/x-ray-predict-pneumonia-tf-training.ipynb) creation notebook. Here you can see the steps how the sample model was created.
@@ -61,12 +85,20 @@ aws s3 sync --profile=<xraylab_profile_name> --endpoint=<external Rados GW endpo
 
 Please note the above command assumes you created a AWS CLI profile using the AWS KEY_ID and SECRET_KEY of the Rados user as explained in the [prerequisites](https://github.com/eartvit/xraylab-demo/tree/main/prerequisites) and you created the train-test-validation bucket as described in the [S3 buckets creation](https://github.com/eartvit/xraylab-demo/blob/main/notebooks/s3-buckets.ipynb) notebook.
 
-Coming back to our datascientist user stories, naturally, as soon as the datascientist has an ML model ready, it wants it deployed to production fast and easy. One way to do this is by using [Seldon](https://www.seldon.io/).
-Seldon core comes a packaged web-server exposing endpoints for accessing the prediction function of a model as well as metrics (including custom ones) for the ML model. Seldon also has pre-packaged inference servers meaning that one can deploy a trained model (i.e. from a pickle or h5 file) just by creating a seldon deployment specification yaml file and without writing any additional code. In our use case since we deal with images taking this approach would make the calling service extremely complicated since it would require to receive as input a tensor object (which is a three dimensional matrix). Luckily with Seldon we can create a simple object following a defined pattern recognized by seldon-core in order to expose our model in a simple way. The [TestXray.py](https://github.com/eartvit/xraylab-demo/blob/main/pneumonia-risk-detection/TestXRay.py) in the [pneumonia-risk-detection](https://github.com/eartvit/xraylab-demo/tree/main/pneumonia-risk-detection) folder is in our showcase the implementation of such an extension. In its most basic form, the class exposing the ML model must contain the initializer (`__init__` function), the `predict` function which Seldon binds it to the `/predict` endpoint of the web-service, and the `metrics` function which is bound to the `/metrics` endpoint queried by Prometheus. The metada initializer is an optional function though it's good practice to create it to have an idea what the `/predict` expects as input array. The additional function used in the code is to accomodate the business logic described in the overview section.
+Coming back to our datascientist user stories, naturally, as soon as the datascientist has an ML model ready, it wants it deployed to production fast and easy. One way to do this is by using [Seldon](https://www.seldon.io/), or by using the Model-Mesh service integration offered out of the box by both ODH and RHODS (*Note: the RHODS UI already provides a way to configure the Model Mesh service and deploy a binary model compatible with the ONNX format, as depicted in an earlier screenshot*).
+
+As a high level overview, Seldon core comes a packaged web-server exposing endpoints for accessing the prediction function of a model as well as metrics (including custom ones) for the ML model. Seldon also has pre-packaged inference servers meaning that one can deploy a trained model (i.e. from a pickle or h5 file) just by creating a seldon deployment specification yaml file and without writing any additional code. In our use case since we deal with images taking this approach would make the calling service extremely complicated since it would require to receive as input a tensor object (which is a three dimensional matrix). Luckily with Seldon we can create a simple object following a defined pattern recognized by seldon-core in order to expose our model in a simple way. The [TestXray.py](https://github.com/eartvit/xraylab-demo/blob/main/pneumonia-risk-detection/TestXRay.py) in the [pneumonia-risk-detection](https://github.com/eartvit/xraylab-demo/tree/main/pneumonia-risk-detection) folder is in our showcase the implementation of such an extension. In its most basic form, the class exposing the ML model must contain the initializer (`__init__` function), the `predict` function which Seldon binds it to the `/predict` endpoint of the web-service, and the `metrics` function which is bound to the `/metrics` endpoint queried by Prometheus. The metada initializer is an optional function though it's good practice to create it to have an idea what the `/predict` expects as input array. The additional function used in the code is to accomodate the business logic described in the overview section.
 
 Note that the [TestXray.py](https://github.com/eartvit/xraylab-demo/blob/main/pneumonia-risk-detection/TestXRay.py) does not contain any web server specific code since that is handled behind the scenes directly by Seldon. Therefore the datascientist can focus only on what the model requires as input in order to create a prediction.
 
-Now that we have a model trained and a template service created it's time to deploy them. OpenShift has a way of creating container images directly from source code called Source-to-Image (S2I). We shall use this functionality in our showcase to deploy all the applications of the showcase in the next section, the (fullstack) application developer user stories. 
+Now that we have a model trained and a template service created it's time to deploy them. OpenShift has a way of creating container images directly from source code called Source-to-Image (S2I). We shall use this functionality in our showcase to deploy all the applications of the showcase in the next section, the (fullstack) application developer user stories.
+
+Before we get to the application developer story, we shall close this section by describing the specifics for deploying models with RHODS.
+From the datascience project created inside the RHODS UI, click on deploy model and fill in the details as depicted in the below picture.
+[rhods-04](docs/rhods-04.png)
+***Note: The above diagram assumes the data connection where the ONNX formatted Tensorflow model binary file resides has been created in an earlier step***
+Click on `Deploy` and wait for it to complete. If successful, you shall see a URL in the dashboard which is the entrypoint for the prediction.
+To perform actual predictions on an image, it must be first converted to a tensor based representation understood by the model. This is done in the different [TestXray.py](https://github.com/eartvit/xraylab-demo/blob/main/rhods-pneumonia-risk-detection/TestXRay.py) file, based in the [rhods-pneumoniarisk-detection](https://github.com/eartvit/xraylab-demo/blob/main/pneumonia-risk-detection/) folder. The TestApp from this folder has been adapted to act as a middle-layer component between the notification service and the prediction service (from the ML-Mesh server). The rest of the functions fulfilled by this application are the same as the one from the ODH operator scenario.
 
 ### The (Fullstack) Application Developer user stories details
 
