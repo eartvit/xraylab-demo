@@ -17,6 +17,8 @@ aws_access_key_id = os.environ['AWS_ACCESS_KEY_ID']
 aws_secret_access_key = os.environ['AWS_SECRET_ACCESS_KEY']
 service_point = os.environ['SERVICE_POINT']
 region_name = os.environ['REGION']
+use_signature_versioning = os.environ['use_signature_versioning']
+
 
 # Buckets
 bucket_source_name = os.environ['BUCKET_SOURCE']
@@ -30,22 +32,36 @@ seconds_wait = float(os.environ['SECONDS_WAIT'])
 ssl_verify = os.environ['STORAGE_SSL_VERIFY']
 
 s3 = None
-    
+
 if ssl_verify == True:
-  s3 = boto3.client('s3',
-              endpoint_url = service_point,
-              aws_access_key_id = aws_access_key_id,
-              aws_secret_access_key = aws_secret_access_key,
-              region_name = region_name,
-              config=botocore.client.Config(signature_version = 's3'))
+  if use_signature_versioning == True:
+    s3 = boto3.client('s3',
+                endpoint_url = service_point,
+                aws_access_key_id = aws_access_key_id,
+                aws_secret_access_key = aws_secret_access_key,
+                region_name = region_name,
+                config=botocore.client.Config(signature_version = 's3'))
+  else:
+    s3 = boto3.client('s3',
+                endpoint_url = service_point,
+                aws_access_key_id = aws_access_key_id,
+                aws_secret_access_key = aws_secret_access_key,
+                region_name = region_name)
 else:
-  s3 = boto3.client('s3',
-              endpoint_url = service_point,
-              aws_access_key_id = aws_access_key_id,
-              aws_secret_access_key = aws_secret_access_key,
-              region_name = region_name,
-              verify = False,
-              config=botocore.client.Config(signature_version = 's3'))
+  if use_signature_versioning == True:
+    s3 = boto3.client('s3',
+                endpoint_url = service_point,
+                aws_access_key_id = aws_access_key_id,
+                aws_secret_access_key = aws_secret_access_key,
+                region_name = region_name,
+                verify = False,
+                config=botocore.client.Config(signature_version = 's3'))
+  else:
+    s3 = boto3.client('s3',
+                endpoint_url = service_point,
+                aws_access_key_id = aws_access_key_id,
+                aws_secret_access_key = aws_secret_access_key,
+                region_name = region_name)
 
 ########
 # Code #

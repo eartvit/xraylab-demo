@@ -20,6 +20,7 @@ db_db = os.environ['database_db']
 service_point = os.environ['storage_service_point']
 ssl_verify = os.environ['storage_ssl_verify']
 ml_endpoint = os.environ['ml_endpoint']
+use_signature_versioning = os.environ['use_signature_versioning']
 
 headers = {
     'content-type': 'application/json'
@@ -71,21 +72,34 @@ class TestXRay(object):
     s3 = None
     
     if ssl_verify == True:
-      s3 = boto3.client('s3',
-                  endpoint_url = service_point,
-                  aws_access_key_id = aws_access_key_id,
-                  aws_secret_access_key = aws_secret_access_key,
-                  region_name = region_name,
-                  config=botocore.client.Config(signature_version = 's3'))
+      if use_signature_versioning == True:
+        s3 = boto3.client('s3',
+                    endpoint_url = service_point,
+                    aws_access_key_id = aws_access_key_id,
+                    aws_secret_access_key = aws_secret_access_key,
+                    region_name = region_name,
+                    config=botocore.client.Config(signature_version = 's3'))
+      else:
+        s3 = boto3.client('s3',
+                    endpoint_url = service_point,
+                    aws_access_key_id = aws_access_key_id,
+                    aws_secret_access_key = aws_secret_access_key,
+                    region_name = region_name)
     else:
-      s3 = boto3.client('s3',
-                  endpoint_url = service_point,
-                  aws_access_key_id = aws_access_key_id,
-                  aws_secret_access_key = aws_secret_access_key,
-                  region_name = region_name,
-                  verify = False,
-                  config=botocore.client.Config(signature_version = 's3'))
-
+      if use_signature_versioning == True:
+        s3 = boto3.client('s3',
+                    endpoint_url = service_point,
+                    aws_access_key_id = aws_access_key_id,
+                    aws_secret_access_key = aws_secret_access_key,
+                    region_name = region_name,
+                    verify = False,
+                    config=botocore.client.Config(signature_version = 's3'))
+      else:
+        s3 = boto3.client('s3',
+                    endpoint_url = service_point,
+                    aws_access_key_id = aws_access_key_id,
+                    aws_secret_access_key = aws_secret_access_key,
+                    region_name = region_name)
 
     file_name = path_name.split('/')[-1]    
     pred = np.array([-1])

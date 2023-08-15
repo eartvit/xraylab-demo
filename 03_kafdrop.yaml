@@ -18,7 +18,7 @@ spec:
             - containerPort: 9000
           env:
             - name: KAFKA_BROKERCONNECT
-              value: "my-cluster-kafka-bootstrap:9092"
+              value: "xraylab-kafka-bootstrap:9092"
             - name: JVM_OPTS
               value: "-Xms32M -Xmx64M"
             - name: SERVER_SERVLET_CONTEXTPATH
